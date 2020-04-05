@@ -4,6 +4,7 @@ html {
 }
 
 .App {
+	display: flex;
 }
 
 .card-container {
@@ -20,16 +21,20 @@ html {
 	width: 50vw;
 }
 
-@media (max-width: 1000px) {
-	.card-container {
-		width: 600px;
-	}
-}
-
 .card {
 	width: 18%;
 	height: 10vh;
 	min-height: 50px;
 	margin: 5px 1px;
 	background-color: #777;
+}
+
+@media (max-width: 1000px) {
+	.App {
+		display: block;
+	}
+
+	.card-container {
+		width: 600px;
+	}
 }
