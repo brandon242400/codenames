@@ -1,4 +1,4 @@
-const generateWordList = require('./game-dependencies/generateWordList').generateWordList;
+const generateWordList = require('./generateWordList').generateWordList;
 
 class Game {
   constructor() {
