@@ -1,65 +1,71 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import PropTypes from 'prop-types';
+import CardView from './styles/cardView';
+
 
 export default function Card(props) {
-  const { word, team } = props;
+  const {
+    currentGame,
+    playersTeam,
+    plusBlueScore,
+    plusRedScore,
+    setAssassinCard,
+    wordObj,
+  } = props;
+  const { word, team, selected } = wordObj;
+  const [simulatedState, forceRender] = React.useState('');
 
+  /**
+   *
+   * @param {Event} e
+   */
   const handleClick = (e) => {
     e.preventDefault();
-    alert(word + " clicked!");
+    console.log(currentGame.teamsTurn, playersTeam);
+    if (
+      wordObj.selected
+      || playersTeam === 'spyRed'
+      || playersTeam === 'spyBlue'
+    ) {
+      return;
+    } if (currentGame.teamsTurn !== playersTeam) {
+      return;
+    }
+    wordObj.selected = true;
+    if (team === 'red') {
+      plusRedScore();
+    } else if (team === 'blue') {
+      plusBlueScore();
+    } else if (team === 'assassin') { setAssassinCard(true); }
+    forceRender(`* selected by ${
+      playersTeam.charAt(0).toUpperCase()
+      + playersTeam.substring(1)} *`);
+    currentGame.guessCard(wordObj, playersTeam);
   };
 
-  const Container = getContainer(team);
 
   return (
-    <Container onClick={handleClick}>
-      <h5>{word ? word : "Card"}</h5>
-    </Container>
+    <>
+      <CardView
+        handleClick={handleClick}
+        team={team}
+        word={word}
+        playersTeam={playersTeam}
+        selected={selected}
+        simulatedState={simulatedState}
+      />
+    </>
   );
 }
 
-// Gets style attributes based on what team the card is for.
-const getContainer = (team) => {
-  let bgColor, borderColor;
-  let textColor = "black";
 
-  switch (team) {
-    case "red":
-      bgColor = "#777";
-      borderColor = "red";
-      break;
-    case "blue":
-      bgColor = "#777";
-      borderColor = "blue";
-      break;
-    case "assassin":
-      bgColor = "#444";
-      borderColor = "black";
-      textColor = "red";
-      break;
-    default:
-      bgColor = "#777";
-      borderColor = "black";
-      break;
-  }
-
-  return styled.div`
-    background-color: ${bgColor};
-    border: 2px solid ${borderColor};
-    border-radius: 5px;
-    height: 10vh;
-    margin: 5px 1px;
-    min-height: 50px;
-    transition: background-color 0.25s;
-    width: 18%;
-
-    h5 {
-      color: ${textColor};
-    }
-
-    :hover {
-      background-color: green;
-      cursor: pointer;
-    }
-  `;
+Card.propTypes = {
+  // eslint-disable-next-line
+  currentGame: PropTypes.object.isRequired,
+  playersTeam: PropTypes.string.isRequired,
+  plusBlueScore: PropTypes.func.isRequired,
+  plusRedScore: PropTypes.func.isRequired,
+  setAssassinCard: PropTypes.func.isRequired,
+  // eslint-disable-next-line
+  wordObj: PropTypes.object.isRequired,
 };
