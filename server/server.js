@@ -4,7 +4,7 @@ const gameObj = require('./game-dependencies/Game');
 
 
 const PORT = process.env.NODE_ENV || 5000;
-// const game = new gameObj.Game();
+const game = new gameObj.Game();
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
@@ -13,12 +13,26 @@ const io = require('socket.io')(server);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// temp
+let $gameID;
 
+// Socket stuff
 io.on('connection', (socket) => {
   console.log('Client connected to server socket.');
   socket.on('disconnect', () => {
     console.log('Client disconnected');
   });
+
+  socket.on('send gameID', (gameID) => {
+    console.log(gameID);
+    $gameID = gameID;
+    
+    socket.emit(
+      `${$gameID}: cards`,
+      JSON.stringify(game.wordList)
+    );
+  });
+
 });
 
 

@@ -19,6 +19,7 @@ export default class App extends React.Component {
     this.currentGame = new GameLogic();
     this.gameInstanceTimestamp = new Date().getTime();
     this.setTeam = this.setTeam.bind(this);
+    this.establishSocketConnection = this.establishSocketConnection.bind(this);
     this.gameID = this.props.gameID;
     this.socket = null;
   }
@@ -28,18 +29,7 @@ export default class App extends React.Component {
     const { playersTeam } = this.props;
     this.setTeam(playersTeam);
 
-    // SOCKET.IO STUFF
-    this.socket = io();
-
-    // GET
-    // fetch('/api/moves')
-    //   .then(res => {
-    //     console.log(res);
-    //     return res.text();
-    //   })
-    //   .then(res => {
-    //     console.log(res);
-    //   });
+    this.establishSocketConnection();
 
     // POST
     // fetch('/api/moves', {
@@ -51,6 +41,20 @@ export default class App extends React.Component {
     // })
     //   .then(res => res.text())
     //   .then(res => console.log(res));
+  }
+
+
+  establishSocketConnection() {
+    // SOCKET.IO STUFF
+    const { gameID } = this.props;
+    this.socket = io();
+
+    this.socket.on(`${gameID}: cards`, (cards) => {
+      cards = JSON.parse(cards);
+      console.log(cards);
+    });
+    console.log(gameID + '\n\n');
+    this.socket.emit('send gameID', gameID);
   }
 
 
@@ -87,7 +91,7 @@ export default class App extends React.Component {
       playersTeam,
       currentGame: this.currentGame,
       newGame: this.newGame,
-      socket: this.socket,
+      // socket: this.socket,
     };
 
     return (
