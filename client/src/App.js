@@ -6,7 +6,7 @@ import RulesLeft from './comp/rules/RulesLeft';
 import RulesRight from './comp/rules/RulesRight';
 import GameLogic from './game-logic/GameLogic';
 // import TeamChange from './comp/team-change-ui/teamChangeButtons';
-// import io from 'socket.io-client';
+import io from 'socket.io-client';
 
 
 export default class App extends React.Component {
@@ -19,6 +19,8 @@ export default class App extends React.Component {
     this.currentGame = new GameLogic();
     this.gameInstanceTimestamp = new Date().getTime();
     this.setTeam = this.setTeam.bind(this);
+    this.gameID = this.props.gameID;
+    this.socket = null;
   }
 
 
@@ -27,10 +29,7 @@ export default class App extends React.Component {
     this.setTeam(playersTeam);
 
     // SOCKET.IO STUFF
-    // this.socket = io();
-    // this.socket.on('connect', () => {
-    //   console.log(this.socket.id);
-    // })
+    this.socket = io();
 
     // GET
     // fetch('/api/moves')
@@ -88,6 +87,7 @@ export default class App extends React.Component {
       playersTeam,
       currentGame: this.currentGame,
       newGame: this.newGame,
+      socket: this.socket,
     };
 
     return (
