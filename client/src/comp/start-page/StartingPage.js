@@ -1,8 +1,8 @@
-import React from "react";
+import React from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import App from '../../App';
 import CreateOrJoin from './pregame-options/CreateOrJoin';
 import ChooseTeam from './pregame-options/chooseTeam';
-import { v4 as uuidv4 } from 'uuid';
 
 export default class StartingPage extends React.Component {
   constructor() {
@@ -45,7 +45,7 @@ export default class StartingPage extends React.Component {
           setPlayersTeam={this.setPlayersTeam}
           gameID={gameID}
         />),
-      gameID
+      gameID,
     });
   }
 
@@ -54,9 +54,9 @@ export default class StartingPage extends React.Component {
     // If not valid, ask to be entered again
     // Else, allow user to choose team and then join the game lobby
     if (gameID) {
-      console.log('Joined imaginary game with ID: ' + gameID);
+      console.log(`Joined imaginary game with ID: ${gameID}`);
       this.setState({
-        gameID
+        gameID,
       });
     } else { return false; }
   }
@@ -69,6 +69,6 @@ export default class StartingPage extends React.Component {
       <div>
         {renderedPortion}
       </div>
-    )
+    );
   }
 }

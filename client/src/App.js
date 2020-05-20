@@ -1,12 +1,13 @@
 import React from 'react';
 import './App.css';
+import io from 'socket.io-client';
+import PropTypes from 'prop-types';
 import AppContext from './context/AppContext';
 import CardContainer from './comp/cards/CardContainer';
 import RulesLeft from './comp/rules/RulesLeft';
 import RulesRight from './comp/rules/RulesRight';
 import GameLogic from './game-logic/GameLogic';
 // import TeamChange from './comp/team-change-ui/teamChangeButtons';
-import io from 'socket.io-client';
 
 
 export default class App extends React.Component {
@@ -44,20 +45,6 @@ export default class App extends React.Component {
   }
 
 
-  establishSocketConnection() {
-    // SOCKET.IO STUFF
-    const { gameID } = this.props;
-    this.socket = io();
-
-    this.socket.on(`${gameID}: cards`, (cards) => {
-      cards = JSON.parse(cards);
-      console.log(cards);
-    });
-    console.log(gameID + '\n\n');
-    this.socket.emit('send gameID', gameID);
-  }
-
-
   /**
    * Sets the team that the player will be placed on.
    * @param {String} team name
@@ -82,6 +69,20 @@ export default class App extends React.Component {
       teamDisplay,
       playersTeam,
     }));
+  }
+
+
+  establishSocketConnection() {
+    // SOCKET.IO STUFF
+    const { gameID } = this.props;
+    this.socket = io();
+
+    this.socket.on(`${gameID}: cards`, (cards) => {
+      cards = JSON.parse(cards);
+      console.log(cards);
+    });
+    console.log(`${gameID}\n\n`);
+    this.socket.emit('send gameID', gameID);
   }
 
 

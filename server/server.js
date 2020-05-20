@@ -13,6 +13,14 @@ const io = require('socket.io')(server);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// let socketDict = {
+//   uuid: [
+//     socket1,
+//     socket2,
+//   ]
+// }
+
+
 // temp
 let $gameID;
 
@@ -29,7 +37,7 @@ io.on('connection', (socket) => {
     
     socket.emit(
       `${$gameID}: cards`,
-      JSON.stringify(game.wordList)
+      game.wordList
     );
   });
 
