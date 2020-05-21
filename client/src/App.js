@@ -7,7 +7,6 @@ import CardContainer from './comp/cards/CardContainer';
 import RulesLeft from './comp/rules/RulesLeft';
 import RulesRight from './comp/rules/RulesRight';
 import GameLogic from './game-logic/GameLogic';
-// import TeamChange from './comp/team-change-ui/teamChangeButtons';
 
 
 export default class App extends React.Component {
@@ -23,7 +22,6 @@ export default class App extends React.Component {
     this.setTeam = this.setTeam.bind(this);
     this.establishSocketConnection = this.establishSocketConnection.bind(this);
     this.socket = null;
-    // this.testSocket = this.testSocket.bind(this);
   }
 
 
@@ -63,20 +61,13 @@ export default class App extends React.Component {
 
   establishSocketConnection() {
     this.socket = io();
-
+    // Retrieves cards from server to use in game
     this.socket.on('cards', (cards) => {
       this.currentGame.wordList = cards;
     });
-
+    // Sends game ID to server
     this.socket.emit('send_gameID', this.currentGame.gameID);
   }
-
-
-  // testSocket() {
-  //   // eslint-disable-next-line
-  //   console.log(this.socket.id);
-  //   this.socket.emit('card_selected', { socketID: this.socket.id });
-  // }
 
 
   render() {
@@ -93,11 +84,9 @@ export default class App extends React.Component {
           <RulesLeft />
           <div>
             <h1>Codenames</h1>
-            {/* <button type="button" onClick={this.testSocket}>Test Socket</button> */}
             <h4 style={{ textDecoration: 'underline' }}>
               {`Team: ${teamDisplay}`}
             </h4>
-            {/* <TeamChange setTeam={this.setTeam} /> */}
             <CardContainer playersTeam={playersTeam} />
           </div>
           <RulesRight />
