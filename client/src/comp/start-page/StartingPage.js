@@ -40,25 +40,25 @@ export default class StartingPage extends React.Component {
   createNewGame() {
     const gameID = uuidv4();
     this.setState({
+      gameID,
       renderedPortion: (
         <ChooseTeam
           setPlayersTeam={this.setPlayersTeam}
           gameID={gameID}
         />),
-      gameID,
     });
   }
 
   joinGame(gameID) {
-    if (gameID) {
-      // eslint-disable-next-line no-console
-      console.log(`Joined game with ID: ${gameID}`);
-      this.setState({
-        gameID,
-      });
-      return true;
-    }
-    return false;
+    this.setState({
+      gameID,
+      renderedPortion: (
+        <ChooseTeam
+          setPlayersTeam={this.setPlayersTeam}
+          gameID={gameID}
+        />
+      ),
+    });
   }
 
 

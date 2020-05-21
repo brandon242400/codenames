@@ -12,10 +12,19 @@ export default function CreateOrJoin(props) {
   const joinButtonPressed = (e) => {
     e.preventDefault();
     if (showEntry) {
-      if (joinGame(userEntry) === false) {
-        // eslint-disable-next-line no-alert
-        alert('Invalid lobby ID. Please verify and try again.');
-      }
+      fetch('/api/validate-gameid', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gameID: userEntry }),
+      }).then((res) => res.json())
+        .then((res) => {
+          if (res.validID) {
+            joinGame(userEntry);
+          } else {
+            // eslint-disable-next-line no-alert
+            alert('Invalid lobby ID. Please verify and try again.');
+          }
+        });
     } else { setShowEntry(true); }
   };
 

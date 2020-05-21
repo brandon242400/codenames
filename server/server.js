@@ -1,6 +1,5 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const gameObj = require('./game-dependencies/Game');
 const socketManager = require('./socketManager');
 
 
@@ -14,11 +13,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // socketDict format : {
-//  uuid: {
+//  uuid/gameID: {
 //    game: new gameObj.Game(),
 //    connectedSockets: [socket1, socket2, ...],
 //  }
 // }
+// Holds data for all ongoing games as well as connected sockets for each game
 let socketDict = {};
 
 // Socket connection
@@ -27,14 +27,12 @@ io.on('connection', (socket) => {
   socketManager.establishSocketConnection(socket, socketDict);
 });
 
-
-
-// POST
-app.post('/api/validate-id', (req, res) => {
-  console.log('POST: ' + req.body.move);
-  res.send('POST sent');
+// POST method to validate gameID before establishing socket connection
+app.post('/api/validate-gameid', (req, res) => {
+  const gameID = req.body.gameID;
+  const gameIDlist = Object.keys(socketDict);
+  res.json({ validID: gameIDlist.includes(gameID) });
 });
-
 
 
 server.listen(PORT);

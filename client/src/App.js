@@ -66,6 +66,8 @@ export default class App extends React.Component {
       this.currentGame.wordList = cards;
     });
     // Sends game ID to server
+    // eslint-disable-next-line
+    console.log(this.currentGame.gameID);
     this.socket.emit('sendGameID', this.currentGame.gameID);
   }
 
