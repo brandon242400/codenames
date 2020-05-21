@@ -2,7 +2,7 @@
   "name": "codenames",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:5000",
+  "proxy": "http://cnserver:5000",
   "engines": {
     "node": "12.16.3",
     "npm": "6.14.4"
