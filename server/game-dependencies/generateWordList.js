@@ -28,6 +28,7 @@ const generateWordList = () => {
       word,
       team,
       selected: false,
+      teamThatGuessed: null,
     });
   }
 

@@ -21,7 +21,7 @@ export default function Card(props) {
    */
   const handleClick = (e) => {
     e.preventDefault();
-    console.log(currentGame.teamsTurn, playersTeam);
+    // console.log(currentGame.teamsTurn, playersTeam);
     if (
       wordObj.selected
       || playersTeam === 'spyRed'

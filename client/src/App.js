@@ -1,12 +1,13 @@
 import React from 'react';
 import './App.css';
+import io from 'socket.io-client';
+import PropTypes from 'prop-types';
 import AppContext from './context/AppContext';
 import CardContainer from './comp/cards/CardContainer';
 import RulesLeft from './comp/rules/RulesLeft';
 import RulesRight from './comp/rules/RulesRight';
 import GameLogic from './game-logic/GameLogic';
 // import TeamChange from './comp/team-change-ui/teamChangeButtons';
-import io from 'socket.io-client';
 
 
 export default class App extends React.Component {
@@ -16,41 +17,20 @@ export default class App extends React.Component {
       playersTeam: '',
       teamDisplay: '',
     };
-    this.currentGame = new GameLogic();
+    const { gameID } = this.props;
+    this.currentGame = new GameLogic(gameID);
     this.gameInstanceTimestamp = new Date().getTime();
     this.setTeam = this.setTeam.bind(this);
-    this.gameID = this.props.gameID;
+    this.establishSocketConnection = this.establishSocketConnection.bind(this);
     this.socket = null;
+    // this.testSocket = this.testSocket.bind(this);
   }
 
 
   componentDidMount() {
     const { playersTeam } = this.props;
     this.setTeam(playersTeam);
-
-    // SOCKET.IO STUFF
-    this.socket = io();
-
-    // GET
-    // fetch('/api/moves')
-    //   .then(res => {
-    //     console.log(res);
-    //     return res.text();
-    //   })
-    //   .then(res => {
-    //     console.log(res);
-    //   });
-
-    // POST
-    // fetch('/api/moves', {
-    //   method: 'POST',
-    //   body: JSON.stringify({
-    //     sampleData: 'Sample data from the React client.',
-    //   }),
-    //   headers: { 'Content-Type': 'application/json' },
-    // })
-    //   .then(res => res.text())
-    //   .then(res => console.log(res));
+    this.establishSocketConnection();
   }
 
 
@@ -81,12 +61,29 @@ export default class App extends React.Component {
   }
 
 
+  establishSocketConnection() {
+    this.socket = io();
+
+    this.socket.on('cards', (cards) => {
+      this.currentGame.wordList = cards;
+    });
+
+    this.socket.emit('send_gameID', this.currentGame.gameID);
+  }
+
+
+  // testSocket() {
+  //   // eslint-disable-next-line
+  //   console.log(this.socket.id);
+  //   this.socket.emit('card_selected', { socketID: this.socket.id });
+  // }
+
+
   render() {
     const { playersTeam, teamDisplay } = this.state;
     const contextData = {
       playersTeam,
       currentGame: this.currentGame,
-      newGame: this.newGame,
       socket: this.socket,
     };
 
@@ -96,6 +93,7 @@ export default class App extends React.Component {
           <RulesLeft />
           <div>
             <h1>Codenames</h1>
+            {/* <button type="button" onClick={this.testSocket}>Test Socket</button> */}
             <h4 style={{ textDecoration: 'underline' }}>
               {`Team: ${teamDisplay}`}
             </h4>
@@ -108,3 +106,8 @@ export default class App extends React.Component {
     );
   }
 }
+
+App.propTypes = {
+  gameID: PropTypes.string.isRequired,
+  playersTeam: PropTypes.string.isRequired,
+};
