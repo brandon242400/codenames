@@ -44,7 +44,9 @@ io.on('connection', (socket) => {
 
   // Verifies the entered gameID is valid.
   socket.on('validate_gameID', (gameID) => {
-
+    const IDlist = Object.keys(socketDict);
+    const validID = IDlist.includes(gameID);
+    socket.emit('gameIDvalidated', validID);
   });
 
   // Called whenever a player picks a card in game.
@@ -69,7 +71,7 @@ io.on('connection', (socket) => {
 
 
 // POST
-app.post('/api/moves', (req, res) => {
+app.post('/api/validate-id', (req, res) => {
   console.log('POST: ' + req.body.move);
   res.send('POST sent');
 });
