@@ -13,16 +13,14 @@ const io = require('socket.io')(server);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// let socketDict = {
-//   uuid: [
-//     socket1,
-//     socket2,
-//   ]
+
+// socketDict format : {
+//  uuid: {
+//    game: new gameObj.Game(),
+//    connectedSockets: [socket1, socket2, ...],
+//  }
 // }
-
-
-// temp
-let $gameID;
+let socketDict = {};
 
 // Socket stuff
 io.on('connection', (socket) => {
@@ -31,17 +29,43 @@ io.on('connection', (socket) => {
     console.log('Client disconnected');
   });
 
-  socket.on('send gameID', (gameID) => {
-    console.log(gameID);
-    $gameID = gameID;
-    
-    socket.emit(
-      `${$gameID}: cards`,
-      game.wordList
-    );
+  // Initial game setup and socket storage.
+  socket.on('send_gameID', (gameID) => {
+    if (!socketDict[gameID]) {
+      socketDict[gameID] = {
+        game: new gameObj.Game(),
+        connectedSockets: [socket],
+      };
+    } else {
+      socketDict[gameID].connectedSockets.push(socket);
+    }
+    socket.emit('cards', socketDict[gameID].game.wordList);
   });
 
+  // Verifies the entered gameID is valid.
+  socket.on('validate_gameID', (gameID) => {
+
+  });
+
+  // Called whenever a player picks a card in game.
+  socket.on('card_selected', (data) => {
+    const { gameID, card, teamsTurn, teamThatGuessed, spymastersHint } = data;
+    const game = socketDict[gameID].game;
+    const sockets = socketDict[gameID].connectedSockets;
+
+    card.teamThatGuessed = teamThatGuessed;
+    game.replaceCard(card);
+    game.teamsTurn = teamsTurn;
+    game.spymastersHint = spymastersHint;
+
+    for (let sock of sockets) {
+      if (sock.id !== socket.id) {
+        sock.emit('card_selected_server', card);
+      }
+    }
+  });
 });
+
 
 
 // POST

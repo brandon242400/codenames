@@ -31,8 +31,7 @@ export default class SpymasterEntry extends React.Component {
   }
 
   render() {
-    const { textInput, numInput, currentGame } = this.state;
-    console.log(currentGame.teamsTurn);
+    const { textInput, numInput } = this.state;
 
     return (
       <Container>

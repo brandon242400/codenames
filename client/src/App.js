@@ -17,31 +17,20 @@ export default class App extends React.Component {
       playersTeam: '',
       teamDisplay: '',
     };
-    this.currentGame = new GameLogic();
+    const { gameID } = this.props;
+    this.currentGame = new GameLogic(gameID);
     this.gameInstanceTimestamp = new Date().getTime();
     this.setTeam = this.setTeam.bind(this);
     this.establishSocketConnection = this.establishSocketConnection.bind(this);
-    this.gameID = this.props.gameID;
     this.socket = null;
+    // this.testSocket = this.testSocket.bind(this);
   }
 
 
   componentDidMount() {
     const { playersTeam } = this.props;
     this.setTeam(playersTeam);
-
     this.establishSocketConnection();
-
-    // POST
-    // fetch('/api/moves', {
-    //   method: 'POST',
-    //   body: JSON.stringify({
-    //     sampleData: 'Sample data from the React client.',
-    //   }),
-    //   headers: { 'Content-Type': 'application/json' },
-    // })
-    //   .then(res => res.text())
-    //   .then(res => console.log(res));
   }
 
 
@@ -73,17 +62,21 @@ export default class App extends React.Component {
 
 
   establishSocketConnection() {
-    // SOCKET.IO STUFF
-    const { gameID } = this.props;
     this.socket = io();
 
-    this.socket.on(`${gameID}: cards`, (cards) => {
-      cards = JSON.parse(cards);
-      console.log(cards);
+    this.socket.on('cards', (cards) => {
+      this.currentGame.wordList = cards;
     });
-    console.log(`${gameID}\n\n`);
-    this.socket.emit('send gameID', gameID);
+
+    this.socket.emit('send_gameID', this.currentGame.gameID);
   }
+
+
+  // testSocket() {
+  //   // eslint-disable-next-line
+  //   console.log(this.socket.id);
+  //   this.socket.emit('card_selected', { socketID: this.socket.id });
+  // }
 
 
   render() {
@@ -91,8 +84,7 @@ export default class App extends React.Component {
     const contextData = {
       playersTeam,
       currentGame: this.currentGame,
-      newGame: this.newGame,
-      // socket: this.socket,
+      socket: this.socket,
     };
 
     return (
@@ -101,6 +93,7 @@ export default class App extends React.Component {
           <RulesLeft />
           <div>
             <h1>Codenames</h1>
+            {/* <button type="button" onClick={this.testSocket}>Test Socket</button> */}
             <h4 style={{ textDecoration: 'underline' }}>
               {`Team: ${teamDisplay}`}
             </h4>
@@ -113,3 +106,8 @@ export default class App extends React.Component {
     );
   }
 }
+
+App.propTypes = {
+  gameID: PropTypes.string.isRequired,
+  playersTeam: PropTypes.string.isRequired,
+};

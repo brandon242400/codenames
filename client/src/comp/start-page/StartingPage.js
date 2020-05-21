@@ -50,15 +50,15 @@ export default class StartingPage extends React.Component {
   }
 
   joinGame(gameID) {
-    // Check with server for valid game ID
-    // If not valid, ask to be entered again
-    // Else, allow user to choose team and then join the game lobby
     if (gameID) {
-      console.log(`Joined imaginary game with ID: ${gameID}`);
+      // eslint-disable-next-line no-console
+      console.log(`Joined game with ID: ${gameID}`);
       this.setState({
         gameID,
       });
-    } else { return false; }
+      return true;
+    }
+    return false;
   }
 
 

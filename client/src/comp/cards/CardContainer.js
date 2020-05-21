@@ -13,6 +13,7 @@ export default class CardContainer extends React.Component {
     super(props);
     this.state = {
       assassinCard: false,
+      cards: null,
     };
     this.teamScores = {
       redScore: 0,
@@ -26,7 +27,13 @@ export default class CardContainer extends React.Component {
   }
 
   componentDidMount() {
-    // this.createCards();
+    this.intervalID = setInterval(() => {
+      const { currentGame } = this.context;
+      if (currentGame.wordList) {
+        clearInterval(this.intervalID);
+        this.setState({ cards: this.createCards() });
+      }
+    }, 250);
   }
 
   setAssassinCard(val = true) {
@@ -45,7 +52,7 @@ export default class CardContainer extends React.Component {
     const { currentGame } = this.context;
     const { playersTeam } = this.props;
 
-    const cards = currentGame.getWordList().map((word) => (
+    const cards = currentGame.wordList.map((word) => (
       <Card
         key={word.word}
         currentGame={currentGame}
@@ -75,10 +82,9 @@ export default class CardContainer extends React.Component {
 
 
   render() {
-    const { assassinCard } = this.state;
+    const { assassinCard, cards } = this.state;
     const { playersTeam } = this.props;
     const { currentGame } = this.context;
-    const cards = this.createCards();
 
     return (
       <div>
