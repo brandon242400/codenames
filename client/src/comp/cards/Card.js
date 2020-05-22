@@ -1,3 +1,4 @@
+/* eslint-disable react/forbid-prop-types */
 import React from 'react';
 import PropTypes from 'prop-types';
 import CardView from './styles/cardView';
@@ -7,37 +8,44 @@ export default function Card(props) {
   const {
     currentGame,
     playersTeam,
-    plusBlueScore,
-    plusRedScore,
     setAssassinCard,
     wordObj,
+    socket,
   } = props;
-  const { word, team, selected } = wordObj;
-  const [simulatedState, forceRender] = React.useState('');
+  // Variables pertaining to the card object being passed.
+  const {
+    word,
+    team,
+    selected,
+    teamThatGuessed,
+  } = wordObj;
+  const [teamThatSelectedCard, setTeamThatSelectedCard] = React.useState(teamThatGuessed);
+
 
   /**
-   *
+   * Checks if current user is allowed to select the given card.
+   * If they are, marks the card as selected and attributes a point to the corresponding team.
    * @param {Event} e
    */
   const handleClick = (e) => {
     e.preventDefault();
-    // console.log(currentGame.teamsTurn, playersTeam);
     if (
       wordObj.selected
       || playersTeam === 'spyRed'
       || playersTeam === 'spyBlue'
-    ) {
-      return;
-    } if (currentGame.teamsTurn !== playersTeam) {
+    ) { return; }
+    if (currentGame.teamsTurn !== playersTeam) {
       return;
     }
     wordObj.selected = true;
     if (team === 'red') {
-      plusRedScore();
+      socket.emit('addPointToTeam', { team: 'red' });
     } else if (team === 'blue') {
-      plusBlueScore();
-    } else if (team === 'assassin') { setAssassinCard(true); }
-    forceRender(`* selected by ${
+      socket.emit('addPointToTeam', { team: 'blue' });
+    } else if (team === 'assassin') {
+      setAssassinCard(true);
+    }
+    setTeamThatSelectedCard(`* selected by ${
       playersTeam.charAt(0).toUpperCase()
       + playersTeam.substring(1)} *`);
     currentGame.guessCard(wordObj, playersTeam);
@@ -52,20 +60,16 @@ export default function Card(props) {
         word={word}
         playersTeam={playersTeam}
         selected={selected}
-        simulatedState={simulatedState}
+        teamThatSelectedCard={teamThatSelectedCard}
       />
     </>
   );
 }
 
-
 Card.propTypes = {
-  // eslint-disable-next-line
-  currentGame: PropTypes.object.isRequired,
   playersTeam: PropTypes.string.isRequired,
-  plusBlueScore: PropTypes.func.isRequired,
-  plusRedScore: PropTypes.func.isRequired,
   setAssassinCard: PropTypes.func.isRequired,
-  // eslint-disable-next-line
+  currentGame: PropTypes.object.isRequired,
   wordObj: PropTypes.object.isRequired,
+  socket: PropTypes.object.isRequired,
 };

@@ -55,7 +55,7 @@ export default class App extends React.Component {
             <h4 style={{ textDecoration: 'underline' }}>
               {`Team: ${teamDisplay}`}
             </h4>
-            <CardContainer playersTeam={playersTeam} />
+            <CardContainer />
           </div>
           <RulesRight />
         </div>
