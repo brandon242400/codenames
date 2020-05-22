@@ -4,29 +4,39 @@ import TextField from '@material-ui/core/TextField';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 
+
 export default function CreateOrJoin(props) {
-  const [showEntry, setShowEntry] = React.useState(false);
-  const [userEntry, setUserEntry] = React.useState('');
+  const [joiningGame, setJoiningGame] = React.useState(false);
+  const [gameIDEntry, setGameIDEntry] = React.useState('');
   const { createNewGame, joinGame } = props;
 
-  const joinButtonPressed = (e) => {
-    e.preventDefault();
-    if (showEntry) {
-      fetch('/api/validate-gameid', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gameID: userEntry }),
-      }).then((res) => res.json())
-        .then((res) => {
-          if (res.validID) {
-            joinGame(userEntry);
-          } else {
-            // eslint-disable-next-line no-alert
-            alert('Invalid lobby ID. Please verify and try again.');
-          }
-        });
-    } else { setShowEntry(true); }
+
+  // Checks with server to see if the gameID is a valid session. Joins if valid and alerts if not.
+  const validateIDandJoin = () => {
+    fetch('/api/validate-gameid', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ gameID: gameIDEntry }),
+    }).then((res) => res.json())
+      .then((res) => {
+        if (res.validID) {
+          joinGame(gameIDEntry);
+        } else {
+          // eslint-disable-next-line no-alert
+          alert('Invalid lobby ID. Please verify and try again.');
+        }
+      });
   };
+
+
+  // Called when user presses 'join game'. Displays the game ID entry upon clicking.
+  const joinGameButtonPressed = (e) => {
+    e.preventDefault();
+    if (joiningGame) {
+      validateIDandJoin();
+    } else { setJoiningGame(true); }
+  };
+
 
   return (
     <Container>
@@ -43,12 +53,12 @@ export default function CreateOrJoin(props) {
       <Button
         variant="contained"
         color="primary"
-        onClick={joinButtonPressed}
+        onClick={joinGameButtonPressed}
       >
-        {showEntry ? 'Enter Lobby' : 'Join'}
+        {joiningGame ? 'Enter Lobby' : 'Join'}
       </Button>
       <br />
-      {showEntry
+      {joiningGame
         ? (
           <TextField
             id="standard-basic"
@@ -56,8 +66,8 @@ export default function CreateOrJoin(props) {
             InputLabelProps={{ style: { color: '#999' } }}
             InputProps={{ style: { color: '#99e', width: '20vw' } }}
             style={{ marginTop: '2vh' }}
-            onChange={(e) => setUserEntry(e.target.value)}
-            value={userEntry}
+            onChange={(e) => setGameIDEntry(e.target.value)}
+            value={gameIDEntry}
           />
         )
         : null}
@@ -65,7 +75,7 @@ export default function CreateOrJoin(props) {
   );
 }
 
-
+// Styles used for the page.
 const Container = styled.div`
   background-color: #444;
   text-align: center;

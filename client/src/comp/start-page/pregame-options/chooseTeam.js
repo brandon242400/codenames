@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import Button from '@material-ui/core/Button';
+import PropTypes from 'prop-types';
 
 export default function chooseTeam(props) {
   const { setPlayersTeam } = props;
@@ -11,45 +12,49 @@ export default function chooseTeam(props) {
       <Container>
         <ButtonContainer style={{ marginRight: '10vw' }}>
           <Button
-            variant='contained'
-            color='primary'
-            onClick={() => setPlayersTeam('red')}
+            variant="contained"
+            color="primary"
+            onClick={() => setPlayersTeam('red', 'Red')}
             style={{ marginBottom: '3vh' }}
           >
             Red Team
           </Button>
-          <br/>
+          <br />
           <Button
-            variant='contained'
-            color='primary'
-            onClick={() => setPlayersTeam('spyRed')}
+            variant="contained"
+            color="primary"
+            onClick={() => setPlayersTeam('spyRed', 'Red Team\'s Spy')}
           >
-            Red Team's Spy
+            Red Team&apos;s Spy
           </Button>
         </ButtonContainer>
 
         <ButtonContainer>
           <Button
-            variant='contained'
-            color='primary'
-            onClick={() => setPlayersTeam('blue')}
+            variant="contained"
+            color="primary"
+            onClick={() => setPlayersTeam('blue', 'Blue')}
             style={{ marginBottom: '3vh' }}
           >
             Blue Team
           </Button>
-          <br/>
+          <br />
           <Button
-            variant='contained'
-            color='primary'
-            onClick={() => setPlayersTeam('spyBlue')}
+            variant="contained"
+            color="primary"
+            onClick={() => setPlayersTeam('spyBlue', 'Blue Team\'s Spy')}
           >
-            Blue Team's Spy
+            Blue Team&apos;s Spy
           </Button>
         </ButtonContainer>
       </Container>
     </>
-  )
+  );
 }
+
+chooseTeam.propTypes = {
+  setPlayersTeam: PropTypes.func.isRequired,
+};
 
 const Container = styled.div`
   width: fit-content;
