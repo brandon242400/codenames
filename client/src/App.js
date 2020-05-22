@@ -12,68 +12,34 @@ import GameLogic from './game-logic/GameLogic';
 export default class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      playersTeam: '',
-      teamDisplay: '',
-    };
     const { gameID } = this.props;
-    this.currentGame = new GameLogic(gameID);
-    this.gameInstanceTimestamp = new Date().getTime();
-    this.setTeam = this.setTeam.bind(this);
-    this.establishSocketConnection = this.establishSocketConnection.bind(this);
     this.socket = null;
+    this.currentGame = new GameLogic(gameID);
+    this.establishSocketConnection = this.establishSocketConnection.bind(this);
   }
 
 
   componentDidMount() {
-    const { playersTeam } = this.props;
-    this.setTeam(playersTeam);
     this.establishSocketConnection();
   }
 
 
   /**
-   * Sets the team that the player will be placed on.
-   * @param {String} team name
+   * Initializes socket object to connect to server.
+   * Sets listener to retrieve cards from the server to use for the game.
+   * Sends gameID to server to check whether player is joining a game or starting a new one.
    */
-  setTeam(playersTeam) {
-    let teamDisplay = playersTeam;
-    switch (teamDisplay) {
-      case 'red':
-        teamDisplay = 'Red';
-        break;
-      case 'blue':
-        teamDisplay = 'Blue';
-        break;
-      case 'spyRed':
-        teamDisplay = 'Red Team\'s Spy';
-        break;
-      default:
-        teamDisplay = 'Blue Team\'s Spy';
-        break;
-    }
-    this.setState(() => ({
-      teamDisplay,
-      playersTeam,
-    }));
-  }
-
-
   establishSocketConnection() {
     this.socket = io();
-    // Retrieves cards from server to use in game
     this.socket.on('cards', (cards) => {
       this.currentGame.wordList = cards;
     });
-    // Sends game ID to server
-    // eslint-disable-next-line
-    console.log(this.currentGame.gameID);
     this.socket.emit('sendGameID', this.currentGame.gameID);
   }
 
 
   render() {
-    const { playersTeam, teamDisplay } = this.state;
+    const { playersTeam, teamDisplay } = this.props;
     const contextData = {
       playersTeam,
       currentGame: this.currentGame,
@@ -101,4 +67,5 @@ export default class App extends React.Component {
 App.propTypes = {
   gameID: PropTypes.string.isRequired,
   playersTeam: PropTypes.string.isRequired,
+  teamDisplay: PropTypes.string.isRequired,
 };
