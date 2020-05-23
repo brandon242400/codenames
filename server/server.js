@@ -12,12 +12,6 @@ const io = require('socket.io')(server);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// socketDict format : {
-//  uuid/gameID: {
-//    game: new gameObj.Game(),
-//    connectedSockets: [socket1, socket2, ...],
-//  }
-// }
 // Holds data for all ongoing games as well as connected sockets for each game
 let socketDict = {};
 
@@ -36,3 +30,10 @@ app.post('/api/validate-gameid', (req, res) => {
 
 
 server.listen(PORT);
+
+// socketDict format : {
+//  uuid/gameID: {
+//    game: new gameObj.Game(),
+//    connectedSockets: [socket1, socket2, ...],
+//  }
+// }

@@ -3,23 +3,21 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 export default function assassinCardSelected(props) {
-  const { losingTeam, startNewGame } = props;
+  let { losingTeam } = props;
+
   const winningTeam = (losingTeam === 'red') ? 'Blue' : 'Red';
+  losingTeam = losingTeam.charAt(0).toUpperCase() + losingTeam.substring(1);
 
   return (
     <Container>
       <h2>{`Assassin Card Selected by ${losingTeam} Team!`}</h2>
       <h2>{`${winningTeam} Team Wins!`}</h2>
-      <button type="button" onClick={() => startNewGame()}>
-        New Game?
-      </button>
     </Container>
   );
 }
 
 assassinCardSelected.propTypes = {
   losingTeam: PropTypes.string.isRequired,
-  startNewGame: PropTypes.func.isRequired,
 };
 
 const Container = styled.div`

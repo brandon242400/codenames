@@ -18,6 +18,7 @@ export default class SpymasterEntry extends React.Component {
     const { textInput, numInput, currentGame } = this.state;
     if (currentGame.teamsTurn === this.playersTeam) {
       currentGame.setSpymastersHint(textInput, this.playersTeam, parseInt(numInput, 10));
+      // socket.emit() <== Send the hint to the server
       this.setState({
         textInput: '',
         numInput: '',
@@ -61,7 +62,6 @@ export default class SpymasterEntry extends React.Component {
 }
 
 SpymasterEntry.propTypes = {
-  // eslint-disable-next-line
   currentGame: PropTypes.object.isRequired,
   playersTeam: PropTypes.string.isRequired,
 };

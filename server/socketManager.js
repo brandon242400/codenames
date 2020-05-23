@@ -5,7 +5,9 @@ function establishSocketConnection(socket, socketDict) {
     console.log('Client disconnected');
   });
 
-  // Initial game setup and socket storage.
+  /*
+  * Initial game setup and socket storage. 
+  */
   socket.on('sendGameID', (gameID) => {
     if (!socketDict[gameID]) {
       socketDict[gameID] = {
@@ -18,14 +20,18 @@ function establishSocketConnection(socket, socketDict) {
     socket.emit('cards', socketDict[gameID].game.wordList);
   });
 
-  // Verifies the entered gameID is valid.
+  /*
+  * Verifies the entered gameID is valid. 
+  */
   socket.on('validateGameID', (gameID) => {
     const IDlist = Object.keys(socketDict);
     const validID = IDlist.includes(gameID);
     socket.emit('gameIDvalidated', validID);
   });
 
-  // Called whenever a player picks a card in game.
+  /*
+  * Called whenever a player picks a card in game. 
+  */
   socket.on('cardSelected', (data) => {
     const { gameID, card, teamsTurn, teamThatGuessed, spymastersHint } = data;
     const game = socketDict[gameID].game;
