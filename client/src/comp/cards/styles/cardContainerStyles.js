@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 
+// Styled div applied to CardContainer.js
 const StyledCardContainer = styled.div`
   background-color: #999;
   border: 3px solid #555;
@@ -15,5 +16,4 @@ const StyledCardContainer = styled.div`
   width: 50vw;
 `;
 
-// eslint-disable-next-line import/prefer-default-export
-export { StyledCardContainer };
+export default StyledCardContainer;

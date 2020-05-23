@@ -4,7 +4,7 @@ import AppContext from '../../context/AppContext';
 import ScoreDisplay from './scoreDisplay';
 import AssassinCard from '../game-end/assassinCardSelected';
 import SpymasterEntry from '../spymaster-entry/spymasterEntry';
-import { StyledCardContainer } from './styles/cardContainerStyles';
+import StyledCardContainer from './styles/cardContainerStyles';
 
 
 export default class CardContainer extends React.Component {

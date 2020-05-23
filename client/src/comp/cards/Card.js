@@ -12,14 +12,7 @@ export default function Card(props) {
     wordObj,
     socket,
   } = props;
-  // Variables pertaining to the card object being passed.
-  const {
-    word,
-    team,
-    selected,
-    teamThatGuessed,
-  } = wordObj;
-  const [teamThatSelectedCard, setTeamThatSelectedCard] = React.useState(teamThatGuessed);
+  const [teamThatSelectedCard, setTeamThatSelectedCard] = React.useState(wordObj.teamThatGuessed);
 
 
   /**
@@ -38,11 +31,11 @@ export default function Card(props) {
       return;
     }
     wordObj.selected = true;
-    if (team === 'red') {
+    if (wordObj.team === 'red') {
       socket.emit('addPointToTeam', { team: 'red' });
-    } else if (team === 'blue') {
+    } else if (wordObj.team === 'blue') {
       socket.emit('addPointToTeam', { team: 'blue' });
-    } else if (team === 'assassin') {
+    } else if (wordObj.team === 'assassin') {
       setAssassinCard(true);
     }
     setTeamThatSelectedCard(`* selected by ${
@@ -56,10 +49,8 @@ export default function Card(props) {
     <>
       <CardView
         handleClick={handleClick}
-        team={team}
-        word={word}
+        wordObj={wordObj}
         playersTeam={playersTeam}
-        selected={selected}
         teamThatSelectedCard={teamThatSelectedCard}
       />
     </>

@@ -9,45 +9,39 @@ import {
 
 export default function cardView(props) {
   const {
-    team,
-    word,
     playersTeam,
-    selected,
-    simulatedState,
+    wordObj,
     handleClick,
+    teamThatSelectedCard,
   } = props;
 
+  /* Sets the view container for the card depending on which team the user is on. Makes sure the
+  spymasters see everything but others only see cards that have already been selected. */
   let SpyViewContainer;
-  if ((playersTeam === 'red' || playersTeam === 'blue') && !selected) {
+  if ((playersTeam === 'red' || playersTeam === 'blue') && !wordObj.selected) {
     SpyViewContainer = bystanderCardStyle;
-  } else if (team === 'red') {
+  } else if (wordObj.team === 'red') {
     SpyViewContainer = redCardStyle;
-  } else if (team === 'blue') {
+  } else if (wordObj.team === 'blue') {
     SpyViewContainer = blueCardStyle;
-  } else if (team === 'assassin') {
+  } else if (wordObj.team === 'assassin') {
     SpyViewContainer = assassinCardStyle;
   } else { SpyViewContainer = bystanderCardStyle; }
 
 
   return (
     <SpyViewContainer onClick={handleClick}>
-      <h5>{word}</h5>
-      {selected
-        ? <h5>{simulatedState}</h5>
+      <h5>{wordObj.word}</h5>
+      {wordObj.selected
+        ? <h5>{teamThatSelectedCard}</h5>
         : null}
     </SpyViewContainer>
   );
 }
 
 cardView.propTypes = {
-  team: PropTypes.string.isRequired,
-  word: PropTypes.string.isRequired,
   playersTeam: PropTypes.string.isRequired,
-  selected: PropTypes.bool.isRequired,
   handleClick: PropTypes.func.isRequired,
-  simulatedState: PropTypes.string,
-};
-
-cardView.defaultProps = {
-  simulatedState: '',
+  wordObj: PropTypes.object.isRequired,
+  teamThatSelectedCard: PropTypes.string.isRequired,
 };
