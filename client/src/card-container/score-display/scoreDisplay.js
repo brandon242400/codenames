@@ -1,6 +1,5 @@
 import React from 'react';
-import io from 'socket.io-client';
-import AppContext from '../../context/AppContext';
+import AppContext from '../../modules/context/AppContext';
 
 
 export default class scoreDisplay extends React.Component {
@@ -14,13 +13,7 @@ export default class scoreDisplay extends React.Component {
 
   // Setting listener to retrieve the scores from the server when they change.
   componentDidMount() {
-    this.socket = io();
-    this.socket.on('sendGameScores', (data) => {
-      this.setState({
-        redScore: data.redScore,
-        blueScore: data.blueScore,
-      });
-    });
+    // Establish connection to SocketManager from AppContext & set up listeners.
   }
 
   render() {

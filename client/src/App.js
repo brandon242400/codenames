@@ -2,11 +2,11 @@ import React from 'react';
 import './App.css';
 import io from 'socket.io-client';
 import PropTypes from 'prop-types';
-import AppContext from './context/AppContext';
-import CardContainer from './comp/cards/CardContainer';
-import RulesLeft from './comp/rules/RulesLeft';
-import RulesRight from './comp/rules/RulesRight';
-import GameLogic from './game-logic/GameLogic';
+import AppContext from './modules/context/AppContext';
+import CardContainer from './card-container/CardContainer';
+import RulesLeft from './rules/RulesLeft';
+import RulesRight from './rules/RulesRight';
+import GameLogic from './modules/game-logic/GameLogic';
 
 
 export default class App extends React.Component {

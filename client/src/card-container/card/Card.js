@@ -1,7 +1,7 @@
 /* eslint-disable react/forbid-prop-types */
 import React from 'react';
 import PropTypes from 'prop-types';
-import CardView from './styles/cardView';
+import CardView from './style/cardView';
 
 
 export default function Card(props) {

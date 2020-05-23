@@ -1,6 +1,6 @@
 import React from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import App from '../../App';
+import App from '../App';
 import CreateOrJoin from './pregame-options/CreateOrJoin';
 import ChooseTeam from './pregame-options/chooseTeam';
 
