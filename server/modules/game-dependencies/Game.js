@@ -5,6 +5,8 @@ class Game {
     this.wordList = generateWordList();
     this.teamsTurn = 'spyRed';
     this.spymastersHint = null;
+    this.redScore = 0;
+    this.blueScore = 0;
   }
 
   /**
