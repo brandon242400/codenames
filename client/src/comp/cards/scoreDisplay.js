@@ -1,32 +1,41 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import io from 'socket.io-client';
+import AppContext from '../../context/AppContext';
 
 
-export default function scoreDisplay(props) {
-  const [redScore, setRedScore] = React.useState(0);
-  const [blueScore, setBlueScore] = React.useState(0);
-  const { socket } = props;
+export default class scoreDisplay extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      redScore: 0,
+      blueScore: 0,
+    };
+  }
 
   // Setting listener to retrieve the scores from the server when they change.
-  socket.on('getGameScore', (data) => {
-    setRedScore(data.redScore);
-    setBlueScore(data.blueScore);
-  });
+  componentDidMount() {
+    this.socket = io();
+    this.socket.on('sendGameScores', (data) => {
+      this.setState({
+        redScore: data.redScore,
+        blueScore: data.blueScore,
+      });
+    });
+  }
 
-  return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'space-evenly',
-    }}
-    >
-      <h3>{`Red: ${redScore}`}</h3>
-      <h3>{`Blue: ${blueScore}`}</h3>
-    </div>
-  );
+  render() {
+    const { redScore, blueScore } = this.state;
+
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-evenly',
+      }}
+      >
+        <h3>{`Red: ${redScore}`}</h3>
+        <h3>{`Blue: ${blueScore}`}</h3>
+      </div>
+    );
+  }
 }
-
-
-scoreDisplay.propTypes = {
-  // eslint-disable-next-line react/forbid-prop-types
-  socket: PropTypes.object.isRequired,
-};
+scoreDisplay.contextType = AppContext;

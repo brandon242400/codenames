@@ -66,11 +66,11 @@ export default class CardContainer extends React.Component {
 
   render() {
     const { selectedAssassinCard, cards } = this.state;
-    const { currentGame, socket, playersTeam } = this.context;
+    const { currentGame, playersTeam } = this.context;
 
     return (
       <div>
-        <ScoreDisplay socket={socket} />
+        <ScoreDisplay />
 
         {(playersTeam === 'spyRed' || playersTeam === 'spyBlue')
           ? <SpymasterEntry currentGame={currentGame} playersTeam={playersTeam} />
