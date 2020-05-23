@@ -18,6 +18,11 @@ export default class CardContainer extends React.Component {
     this.setAssassinCard = this.setAssassinCard.bind(this);
   }
 
+
+  /**
+   * setInterval used to get wordList from this game session once the server sends it.
+   * Cancels interval after it verifies wordList has been updated.
+   */
   componentDidMount() {
     this.intervalID = setInterval(() => {
       const { currentGame } = this.context;
@@ -28,10 +33,20 @@ export default class CardContainer extends React.Component {
     }, 250);
   }
 
+
+  /**
+   * Sets the 'selectedAssassinCard' value that's used to decide whether or
+   * not to show the end game component.
+   * @param {Boolean} val
+   */
   setAssassinCard(val = true) {
     this.setState({ selectedAssassinCard: val });
   }
 
+
+  /**
+   * Generates and returns a list of cards from the wordList array given from the server.
+   */
   createCards() {
     const { currentGame, playersTeam, socket } = this.context;
 
