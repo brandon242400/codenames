@@ -1,9 +1,10 @@
-const gameObj = require('../../game-dependencies/Game');
+const gameObj = require('../game-dependencies/Game');
 
 class SocketManager {
   constructor(socket) {
     this.socketDict = {};
     this.socket = socket;
+    this.establishSocketConnection();
   }
 
   establishSocketConnection() {
@@ -18,7 +19,7 @@ class SocketManager {
     * Initial game setup and socket storage. 
     */
     socket.on('sendGameID', (gameID) => {
-      if (!socketDict[gameID]) {
+      if (!this.isValidGameID(gameID)) {
         socketDict[gameID] = {
           game: new gameObj.Game(),
           connectedSockets: [socket],
@@ -26,21 +27,35 @@ class SocketManager {
       } else {
         socketDict[gameID].connectedSockets.push(socket);
       }
-      socket.emit('cards', socketDict[gameID].game.wordList);
+    });
+    
+    /*
+    * Sends cards
+    */
+    socket.on('sendCards', (data, callback) => {
+      const { gameID } = data;
+      if (this.isValidGameID(gameID))
+        callback(socketDict[gameID].game.wordList);
+      else
+        callback(null);
     });
 
     /*
     * Verifies the entered gameID is valid. 
     */
-    socket.on('validateGameID', (gameID) => {
-      const IDlist = Object.keys(socketDict);
-      const validID = IDlist.includes(gameID);
-      socket.emit('gameIDvalidated', validID);
+    socket.on('validateGameID', (gameID, callback) => {
+      callback(this.isValidGameID(gameID));
     });
 
-    /*
-    * Called whenever a player picks a card in game. 
-    */
+    this.setCardSelectedListener();
+  }
+
+  /** Called whenever a player picks a card in game. 
+   *  Updates server version of wordList and emits the move to the other clients in game. */
+  setCardSelectedListener() {
+    const socket = this.socket;
+    const socketDict = this.socketDict;
+
     socket.on('cardSelected', (data) => {
       const { gameID, card, teamsTurn, teamThatGuessed, spymastersHint } = data;
       const game = socketDict[gameID].game;
@@ -73,3 +88,10 @@ class SocketManager {
 }
 
 module.exports = { SocketManager };
+
+// socketDict format : {
+//  uuid/gameID: {
+//    game: new gameObj.Game(),
+//    connectedSockets: [socket1, socket2, ...],
+//  }
+// }

@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const socketManager = require('./modules/socket-manager/SocketManager');
+const socketManager = require('./modules/socket-manager/SocketManager').SocketManager;
 
 
 const PORT = process.env.NODE_ENV || 5000;
@@ -24,12 +24,4 @@ app.post('/api/validate-gameid', (req, res) => {
   res.json({ validID: sn.isValidGameID(req.body.gameID) });
 });
 
-
 server.listen(PORT);
-
-// socketDict format : {
-//  uuid/gameID: {
-//    game: new gameObj.Game(),
-//    connectedSockets: [socket1, socket2, ...],
-//  }
-// }

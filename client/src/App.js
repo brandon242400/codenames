@@ -1,40 +1,40 @@
 import React from 'react';
 import './App.css';
-import io from 'socket.io-client';
 import PropTypes from 'prop-types';
 import AppContext from './modules/context/AppContext';
 import CardContainer from './card-container/CardContainer';
 import RulesLeft from './rules/RulesLeft';
 import RulesRight from './rules/RulesRight';
 import GameLogic from './modules/game-logic/GameLogic';
+import SocketManager from './modules/socket/SocketManager';
 
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
-    const { gameID } = this.props;
-    this.socket = null;
-    this.currentGame = new GameLogic(gameID);
+    this.socketManager = null;
+    this.currentGame = null;
     this.establishSocketConnection = this.establishSocketConnection.bind(this);
   }
 
 
   componentDidMount() {
+    const { gameID } = this.props;
+    this.currentGame = new GameLogic(gameID);
+    this.socketManager = new SocketManager(gameID);
     this.establishSocketConnection();
   }
 
 
-  /**
-   * Initializes socket object to connect to server.
-   * Sets listener to retrieve cards from the server to use for the game.
-   * Sends gameID to server to check whether player is joining a game or starting a new one.
-   */
+  /* Gets cards from server and stores them in this.currentGame */
   establishSocketConnection() {
-    this.socket = io();
-    this.socket.on('cards', (cards) => {
-      this.currentGame.wordList = cards;
-    });
-    this.socket.emit('sendGameID', this.currentGame.gameID);
+    this.socketManager.getCards()
+      .then((res) => {
+        this.currentGame.wordList = res;
+      }).catch((err) => {
+        // eslint-disable-next-line no-console
+        console.log(err.message);
+      });
   }
 
 
@@ -43,7 +43,7 @@ export default class App extends React.Component {
     const contextData = {
       playersTeam,
       currentGame: this.currentGame,
-      socket: this.socket,
+      socketManager: this.socketManager,
     };
 
     return (
@@ -55,7 +55,7 @@ export default class App extends React.Component {
             <h4 style={{ textDecoration: 'underline' }}>
               {`Team: ${teamDisplay}`}
             </h4>
-            <CardContainer />
+            {/* <CardContainer /> */}
           </div>
           <RulesRight />
         </div>
