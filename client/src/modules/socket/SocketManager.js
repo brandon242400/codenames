@@ -4,23 +4,19 @@ import io from 'socket.io-client';
 export default class SocketManager {
   constructor(gameID) {
     this.socket = io();
-    this.data = {
-      gameID,
-      socketID: this.socket.id,
-    };
+    this.data = { gameID };
     this.sendGameID(gameID);
   }
 
 
   /** Sends gameID to server to set up game instance and link client socket to game. */
-  sendGameID() { this.socket.emit('sendGameID', this.data.gameID); }
+  sendGameID() {
+    this.socket.emit('sendGameID', this.data.gameID);
+  }
 
 
-  /** Gets cards/wordList from server and returns through a callback function.
-   *  @param {function} callbackFunction Function that will be recieving the list. */
+  /** Gets cards/wordList from server and returns through a callback function. */
   getCards() {
-    // this.socket.emit('sendCards', this.data, callbackFunction);
-
     return new Promise((resolve, reject) => {
       if (!this.socket) {
         reject(new Error('Missing socket connection'));
@@ -28,6 +24,16 @@ export default class SocketManager {
       this.socket.emit('sendCards', this.data, (cards) => {
         resolve(cards);
       });
+    });
+  }
+
+
+  /* Only here for testing */
+  testEmit(msg) {
+    console.log('Test emit');
+    this.socket.emit('testEmit', msg, (response) => {
+      // eslint-disable-next-line no-console
+      console.log(response);
     });
   }
 

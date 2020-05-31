@@ -1,6 +1,6 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import Card from './card/Card';
-import AppContext from '../modules/context/AppContext';
 import ScoreDisplay from './score-display/scoreDisplay';
 import AssassinCard from '../end-game/assassinCardSelected';
 import SpymasterEntry from '../spymaster-entry/spymasterEntry';
@@ -14,75 +14,58 @@ export default class CardContainer extends React.Component {
       selectedAssassinCard: false,
       cards: null,
     };
+    const { currentGame, socketManager, playersTeam } = this.props;
+    this.playersTeam = playersTeam;
+    this.socketManager = socketManager;
+    this.currentGame = currentGame;
     this.createCards = this.createCards.bind(this);
     this.setAssassinCard = this.setAssassinCard.bind(this);
   }
 
 
-  /**
-   * setInterval used to get wordList from this game session once the server sends it.
-   * Cancels interval after it verifies wordList has been updated.
-   */
   componentDidMount() {
-    this.intervalID = setInterval(() => {
-      const { currentGame } = this.context;
-      if (currentGame.wordList) {
-        clearInterval(this.intervalID);
-        this.setState({ cards: this.createCards() });
-      }
-    }, 250);
+    this.setState({ cards: this.createCards() });
   }
 
 
-  /**
-   * Sets the 'selectedAssassinCard' value that's used to decide whether or
-   * not to show the end game component.
-   * @param {Boolean} val
-   */
+  /** Sets the 'selectedAssassinCard' value when someone selects the card.
+   *  @param {Boolean} val */
   setAssassinCard(val = true) {
     this.setState({ selectedAssassinCard: val });
   }
 
 
-  /**
-   * Generates and returns a list of cards from the wordList array given from the server.
-   */
+  /** Generates and returns a list of cards from the wordList array given from the server. */
   createCards() {
-    const { currentGame, playersTeam, socket } = this.context;
-
-    const cards = currentGame.wordList.map((word) => (
+    return this.currentGame.wordList.map((word) => (
       <Card
         key={word.word}
-        currentGame={currentGame}
-        playersTeam={playersTeam}
+        currentGame={this.currentGame}
+        playersTeam={this.playersTeam}
         setAssassinCard={this.setAssassinCard}
         wordObj={word}
-        socket={socket}
       />
     ));
-    return cards;
   }
 
 
   render() {
     const { selectedAssassinCard, cards } = this.state;
-    const { currentGame, playersTeam } = this.context;
 
     return (
       <div>
         <ScoreDisplay />
-
-        {(playersTeam === 'spyRed' || playersTeam === 'spyBlue')
-          ? <SpymasterEntry currentGame={currentGame} playersTeam={playersTeam} />
+        {(this.playersTeam === 'spyRed' || this.playersTeam === 'spyBlue')
+          ? <SpymasterEntry currentGame={this.currentGame} playersTeam={this.playersTeam} />
           : null}
-
         <StyledCardContainer>
           {cards}
           {selectedAssassinCard
             ? (
               <AssassinCard
-                losingTeam={playersTeam}
-                startNewGame={() => null}
+                losingTeam={this.playersTeam}
+                startNewGame={() => null} /* <-- Need to add a way for a player to
+                start a new game within the same gameID /uuid instance. */
               />
             )
             : null}
@@ -91,4 +74,9 @@ export default class CardContainer extends React.Component {
     );
   }
 }
-CardContainer.contextType = AppContext;
+
+CardContainer.propTypes = {
+  currentGame: PropTypes.object.isRequired,
+  socketManager: PropTypes.object.isRequired,
+  playersTeam: PropTypes.string.isRequired,
+};

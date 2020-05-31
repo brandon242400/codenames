@@ -8,46 +8,43 @@ class SocketManager {
   }
 
   establishSocketConnection() {
-    const socket = this.socket;
-    const socketDict = this.socketDict;
-
-    socket.on('disconnect', () => {
+    this.socket.on('disconnect', () => {
       console.log('Client disconnected');
     });
 
-    /*
-    * Initial game setup and socket storage. 
-    */
-    socket.on('sendGameID', (gameID) => {
-      if (!this.isValidGameID(gameID)) {
-        socketDict[gameID] = {
-          game: new gameObj.Game(),
-          connectedSockets: [socket],
-        };
-      } else {
-        socketDict[gameID].connectedSockets.push(socket);
-      }
-    });
+    // Initial game setup and socket storage. 
+    this.setSendGameIDListener();
     
-    /*
-    * Sends cards
-    */
-    socket.on('sendCards', (data, callback) => {
-      const { gameID } = data;
-      if (this.isValidGameID(gameID))
-        callback(socketDict[gameID].game.wordList);
-      else
-        callback(null);
-    });
+    // Send Card listener
+    this.setSendCardsListener();
 
-    /*
-    * Verifies the entered gameID is valid. 
-    */
-    socket.on('validateGameID', (gameID, callback) => {
+    // Verifies the entered gameID is valid. 
+    this.socket.on('validateGameID', (gameID, callback) => {
       callback(this.isValidGameID(gameID));
     });
 
+    // Called when a player makes a move in game.
     this.setCardSelectedListener();
+
+    // Test Listener
+    this.socket.on('testEmit', (msg, callback) => {
+      console.log(msg);
+      callback('Server Response');
+    })
+  }
+
+  /** Creates a game session or joins one depending on if one exists or not. */
+  setSendGameIDListener() {
+    this.socket.on('sendGameID', (gameID) => {
+      if (!this.isValidGameID(gameID)) {
+        this.socketDict[gameID] = {
+          game: new gameObj.Game(),
+          connectedSockets: [this.socket],
+        };
+      } else {
+        this.socketDict[gameID].connectedSockets.push(this.socket);
+      }
+    });
   }
 
   /** Called whenever a player picks a card in game. 
@@ -71,6 +68,17 @@ class SocketManager {
           sock.emit('cardSelectedBroadcast', card);
         }
       }
+    });
+  }
+
+  /** Sets the listener that sends the cards/wordList to the client to render. */
+  setSendCardsListener() {
+    this.socket.on('sendCards', (data, callback) => {
+      const { gameID } = data;
+      if (this.isValidGameID(gameID))
+        callback(this.socketDict[gameID].game.wordList);
+      else
+        callback(null);
     });
   }
 
