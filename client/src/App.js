@@ -1,12 +1,10 @@
 import React from 'react';
 import './App.css';
 import PropTypes from 'prop-types';
-// import AppContext from './modules/context/AppContext';
 import CardContainer from './card-container/CardContainer';
 import RulesLeft from './rules/RulesLeft';
 import RulesRight from './rules/RulesRight';
 import GameLogic from './modules/game-logic/GameLogic';
-// import SocketManager from './modules/socket/SocketManager';
 
 
 export default class App extends React.Component {
@@ -20,8 +18,6 @@ export default class App extends React.Component {
 
 
   componentDidMount() {
-    // const { gameID } = this.props;
-    // this.setState({ socketManager: new SocketManager(gameID) });
     this.establishSocketConnection();
   }
 
@@ -31,6 +27,7 @@ export default class App extends React.Component {
     this.socketManager.getCards()
       .then((res) => {
         this.currentGame.wordList = res;
+        // eslint-disable-next-line no-console
         console.log(res);
       }).catch((err) => {
         // eslint-disable-next-line no-console

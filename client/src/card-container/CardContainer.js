@@ -54,7 +54,7 @@ export default class CardContainer extends React.Component {
 
     return (
       <div>
-        <ScoreDisplay />
+        <ScoreDisplay socketManager={this.socketManager} />
         {(this.playersTeam === 'spyRed' || this.playersTeam === 'spyBlue')
           ? <SpymasterEntry currentGame={this.currentGame} playersTeam={this.playersTeam} />
           : null}

@@ -1,5 +1,5 @@
 import React from 'react';
-import AppContext from '../../modules/context/AppContext';
+import PropTypes from 'prop-types';
 
 
 export default class scoreDisplay extends React.Component {
@@ -11,9 +11,10 @@ export default class scoreDisplay extends React.Component {
     };
   }
 
-  // Setting listener to retrieve the scores from the server when they change.
+  // Setting listener to retrieve scores from the server when there is a change.
   componentDidMount() {
-    // Establish connection to SocketManager from AppContext & set up listeners.
+    const { socketManager } = this.props;
+    // Socket listeners to get score changes from server
   }
 
   render() {
@@ -31,4 +32,7 @@ export default class scoreDisplay extends React.Component {
     );
   }
 }
-scoreDisplay.contextType = AppContext;
+
+scoreDisplay.propTypes = {
+  socketManager: PropTypes.object.isRequired,
+};
