@@ -11,6 +11,7 @@ export default class StartingPage extends React.Component {
     this.state = {
       renderedPortion: <></>,
       gameID: '',
+      joiningGame: false,
     };
     this.setPlayersTeam = this.setPlayersTeam.bind(this);
     this.createNewGame = this.createNewGame.bind(this);
@@ -36,14 +37,16 @@ export default class StartingPage extends React.Component {
    * @param {String} teamDisplay Legible team name displayed on the screen during the game.
    */
   setPlayersTeam(playersTeam, teamDisplay) {
-    const { gameID } = this.state;
+    const { gameID, joiningGame } = this.state;
+    const playerID = gameID + uuidv4();
     this.setState({
       renderedPortion: (
         <App
           playersTeam={playersTeam}
           teamDisplay={teamDisplay}
           gameID={gameID}
-          socketManager={new SocketManager(gameID)}
+          socketManager={new SocketManager(gameID, playerID, playersTeam)}
+          joiningGame={joiningGame}
         />),
     });
   }
@@ -71,6 +74,7 @@ export default class StartingPage extends React.Component {
   joinGame(gameID) {
     this.setState({
       gameID,
+      joiningGame: true,
       renderedPortion: (
         <ChooseTeam
           setPlayersTeam={this.setPlayersTeam}

@@ -13,6 +13,9 @@ let sn;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// Object that stores all of the game sessions
+// const globalSocketDict = {};
+
 // Socket connection
 io.on('connection', (socket) => {
   console.log('Client connected to server socket.');

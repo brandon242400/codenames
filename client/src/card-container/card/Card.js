@@ -9,40 +9,62 @@ export default function Card(props) {
     playersTeam,
     setAssassinCard,
     wordObj,
-    socket,
+    socketManager,
   } = props;
-  const [teamThatSelectedCard, setTeamThatSelectedCard] = React.useState(wordObj.teamThatGuessed);
+  // const [teamThatSelectedCard, setTeamThatSelectedCard] = React.useState(wordObj.teamThatGuessed);
 
 
-  /** Checks if current user is allowed to select the given card.
-   *  If they are, marks the card as selected and attributes a point to the corresponding team.
-   *  @param {Event} e */
+  /** If the card broadcasted is this one then this card is modified to reflect the broadcasted.
+   *  @param {object} card wordObj and card are different versions of the same thing */
+  // const compareCards = (card) => {
+  //   if (card.word !== wordObj.word) {
+  //     return;
+  //   }
+  //   wordObj.selected = card.selected;
+  //   wordObj.teamThatGuessed = card.teamThatGuessed;
+  //   setTeamThatSelectedCard(card.teamThatGuessed);
+  //   // eslint-disable-next-line no-console
+  //   console.log(card);
+  //   // eslint-disable-next-line no-console
+  //   console.log(currentGame.wordList);
+  // };
+
+
+  // Setting listener for when another player selects this card.
+  // socketManager.cardSelectedListener()
+  //   .then((res) => {
+  //     compareCards(res);
+  //   }).catch((error) => {
+  //     // eslint-disable-next-line no-console
+  //     console.log(error.message);
+  //   });
+
+
+  /**
+   * Checks if current user is allowed to select the given card.
+   * If they are, marks the card as selected and attributes a point to the corresponding team.
+   * @param {Event} e
+   */
   const handleClick = (e) => {
     e.preventDefault();
-    // Making sure it's the player's turn that's guessing
-    if (
-      wordObj.selected
-      || playersTeam === 'spyRed'
-      || playersTeam === 'spyBlue'
-    ) { return; }
-    if (currentGame.teamsTurn !== playersTeam) {
-      return;
-    }
-    wordObj.selected = true;
 
-    // Setting text below card to display the team that selected it
-    if (wordObj.team === 'red') {
-      socket.emit('addPointToTeam', { team: 'red' }); // <-- Needs revision
-    } else if (wordObj.team === 'blue') {
-      socket.emit('addPointToTeam', { team: 'blue' }); // <-- Needs revision
-    } else if (wordObj.team === 'assassin') {
-      setAssassinCard(true);
-    }
-    setTeamThatSelectedCard(`* selected by ${
-      playersTeam.charAt(0).toUpperCase()
-      + playersTeam.substring(1)} *`);
-    // Passing choice to GameLogic.js to adjust amount of guesses left, whos turn it is, etc.
+    // Making sure it's the current player's turn
+    if (wordObj.selected) { return; }
+    // if (playersTeam === 'spyRed') { return; }
+    // if (playersTeam === 'spyBlue') { return; }
+    // if (currentGame.teamsTurn !== playersTeam) { return; }
+
+    // Setting wordObj and currentGame info before sending to server
+    wordObj.selected = true;
+    wordObj.teamThatGuessed = playersTeam;
     currentGame.guessCard(wordObj, playersTeam);
+    socketManager.sendSelectedCard(wordObj, currentGame);
+    if (wordObj.team === 'assassin') { setAssassinCard(true); }
+
+    // Setting text on card to display who picked it
+    // setTeamThatSelectedCard(`* selected by ${
+    //   playersTeam.charAt(0).toUpperCase()
+    //   + playersTeam.substring(1)} *`);
   };
 
 
@@ -52,7 +74,7 @@ export default function Card(props) {
         handleClick={handleClick}
         wordObj={wordObj}
         playersTeam={playersTeam}
-        teamThatSelectedCard={teamThatSelectedCard}
+        // teamThatSelectedCard={teamThatSelectedCard}
       />
     </>
   );
@@ -63,5 +85,5 @@ Card.propTypes = {
   setAssassinCard: PropTypes.func.isRequired,
   currentGame: PropTypes.object.isRequired,
   wordObj: PropTypes.object.isRequired,
-  socket: PropTypes.object.isRequired,
+  socketManager: PropTypes.object.isRequired,
 };

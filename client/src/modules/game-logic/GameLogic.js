@@ -8,6 +8,10 @@ export default class GameLogic {
     this.teamsTurn = 'spyRed';
     this.spymastersHint = {};
     this.setSpymastersHint('', '', 0);
+    this.scores = {
+      redScore: 0,
+      blueScore: 0,
+    };
   }
 
 
@@ -55,6 +59,7 @@ export default class GameLogic {
 
     // Checking which team's card got guessed and returning true if the player can guess again.
     if (listItem.team === 'blue') {
+      this.scores.blueScore += 1;
       if (this.spymastersHint.guesses < 1) {
         this.setSpymastersHint('', '', 0);
         return false;
@@ -63,6 +68,7 @@ export default class GameLogic {
         return true;
       }
     } else if (listItem.team === 'red') {
+      this.scores.redScore += 1;
       if (this.spymastersHint.guesses < 1) {
         this.setSpymastersHint('', '', 0);
         return false;
@@ -72,15 +78,6 @@ export default class GameLogic {
 
     this.setSpymastersHint('', '', 0);
     return false;
-  }
-
-
-  /**
-   * Resets all game data.
-   */
-  startNextGame() {
-    this.wordList = null;
-    this.setSpymastersHint('', '', 0);
   }
 
 
@@ -107,5 +104,21 @@ export default class GameLogic {
         alert('Error in team turn assignment!');
         break;
     }
+  }
+
+
+  /** Sets all GameLogic data to match another game session's state
+   *  @param {*} data Game info of the session being joined */
+  setAllGameSessionData(data) {
+    const {
+      wordList,
+      teamsTurn,
+      spymastersHint,
+      scores,
+    } = data;
+    this.wordList = wordList;
+    this.teamsTurn = teamsTurn;
+    this.spymastersHint = spymastersHint || { hint: '', team: '', guesses: 0 };
+    this.scores = scores;
   }
 }

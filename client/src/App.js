@@ -13,23 +13,43 @@ export default class App extends React.Component {
     const { gameID, socketManager } = props;
     this.currentGame = new GameLogic(gameID);
     this.socketManager = socketManager;
-    this.establishSocketConnection = this.establishSocketConnection.bind(this);
+    this.getCardsFromServer = this.getCardsFromServer.bind(this);
+    this.getGameSession = this.getGameSession.bind(this);
+    // eslint-disable-next-line no-console
+    console.log(gameID);
   }
 
 
   componentDidMount() {
-    this.establishSocketConnection();
+    const { joiningGame } = this.props;
+    if (joiningGame) {
+      this.getGameSession();
+    } else {
+      this.getCardsFromServer();
+    }
   }
 
 
   /** Gets cards from server and stores them in this.currentGame */
-  establishSocketConnection() {
+  getCardsFromServer() {
     this.socketManager.getCards()
       .then((res) => {
         this.currentGame.wordList = res;
-        // eslint-disable-next-line no-console
-        console.log(res);
       }).catch((err) => {
+        // eslint-disable-next-line no-console
+        console.log(err.message);
+      });
+  }
+
+
+  /** For players joining a game instead of creating one.
+   *  Gets the current game state from the server and gives it to this.currentGame. */
+  getGameSession() {
+    this.socketManager.getGameSessionData()
+      .then((res) => {
+        this.currentGame.setAllGameSessionData(res);
+      })
+      .catch((err) => {
         // eslint-disable-next-line no-console
         console.log(err.message);
       });
@@ -64,4 +84,5 @@ App.propTypes = {
   playersTeam: PropTypes.string.isRequired,
   teamDisplay: PropTypes.string.isRequired,
   socketManager: PropTypes.object.isRequired,
+  joiningGame: PropTypes.bool.isRequired,
 };

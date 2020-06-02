@@ -5,13 +5,15 @@ class Game {
     this.wordList = generateWordList();
     this.teamsTurn = 'spyRed';
     this.spymastersHint = null;
-    this.redScore = 0;
-    this.blueScore = 0;
+    this.scores = {
+      redScore: 0,
+      blueScore: 0,
+    };
   }
 
   /**
    * Replaces the default card with the updated one.
-   * @param {Obj} card 
+   * @param {Obj} card
    */
   replaceCard(card) {
     for (let x = 0; x < this.wordList.length; x++) {
