@@ -46,6 +46,9 @@ class SocketManager {
       if (ID !== playerID) {
         sockets[ID].emit(`${data.changes.card.word}CardChanged`, data.changes.card);
       }
+      if (data.changes.scores) {
+        sockets[ID].emit('scoreChangeBroadcast', data.changes.scores);
+      }
     }
   }
 

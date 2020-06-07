@@ -13,6 +13,7 @@ export default class CardContainer extends React.Component {
     this.state = {
       selectedAssassinCard: false,
       wordList: null,
+      scores: null,
     };
     const { currentGame, socketManager, playersTeam } = this.props;
     this.playersTeam = playersTeam;
@@ -41,10 +42,11 @@ export default class CardContainer extends React.Component {
   getGameState() {
     this.socketManager.getServerGameState()
       .then((res) => {
-        // eslint-disable-next-line
-        console.log(res);
         this.currentGame.setAllGameSessionData(res);
-        this.setState({ wordList: this.currentGame.wordList });
+        this.setState({
+          wordList: res.wordList,
+          scores: res.scores,
+        });
       })
       .catch((error) => {
         // eslint-disable-next-line no-console
@@ -54,22 +56,23 @@ export default class CardContainer extends React.Component {
 
 
   changeInGameState(data) {
-    // eslint-disable-next-line no-console
-    console.log(data);
     this.currentGame.setAllGameSessionData(data);
     this.setState({ wordList: this.currentGame.wordList });
   }
 
 
   render() {
-    const { selectedAssassinCard, wordList } = this.state;
+    const { selectedAssassinCard, wordList, scores } = this.state;
 
     return (
       <div>
-        {/* <ScoreDisplay
-          scores={this.currentGame.scores}
-          socketManager={this.socketManager}
-        /> */}
+        {scores
+          ? (
+            <ScoreDisplay
+              scores={scores}
+              socketManager={this.socketManager}
+            />
+          ) : null}
         {(this.playersTeam === 'spyRed' || this.playersTeam === 'spyBlue')
           ? <SpymasterEntry currentGame={this.currentGame} playersTeam={this.playersTeam} />
           : null}
