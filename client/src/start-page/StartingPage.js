@@ -1,8 +1,9 @@
 import React from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import App from '../../App';
+import App from '../App';
 import CreateOrJoin from './pregame-options/CreateOrJoin';
 import ChooseTeam from './pregame-options/chooseTeam';
+import SocketManager from '../modules/socket/SocketManager';
 
 export default class StartingPage extends React.Component {
   constructor() {
@@ -36,12 +37,14 @@ export default class StartingPage extends React.Component {
    */
   setPlayersTeam(playersTeam, teamDisplay) {
     const { gameID } = this.state;
+    const playerID = gameID + uuidv4();
     this.setState({
       renderedPortion: (
         <App
           playersTeam={playersTeam}
           teamDisplay={teamDisplay}
           gameID={gameID}
+          socketManager={new SocketManager(gameID, playerID, playersTeam)}
         />),
     });
   }

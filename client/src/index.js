@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import StartingPage from './comp/start-page/StartingPage';
+import StartingPage from './start-page/StartingPage';
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
