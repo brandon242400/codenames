@@ -12,7 +12,6 @@ export default function cardView(props) {
     playersTeam,
     wordObj,
     handleClick,
-    // teamThatSelectedCard,
   } = props;
 
   /* Sets the view container for the card depending on which team the user is on. Makes sure the
@@ -33,7 +32,7 @@ export default function cardView(props) {
     <SpyViewContainer onClick={handleClick}>
       <h5>{wordObj.word}</h5>
       {wordObj.selected
-        ? <h5>{wordObj.teamThatGuessed}</h5>
+        ? <h5>{`* Selected by ${wordObj.teamThatGuessed} team *`}</h5>
         : null}
     </SpyViewContainer>
   );
@@ -43,9 +42,4 @@ cardView.propTypes = {
   playersTeam: PropTypes.string.isRequired,
   handleClick: PropTypes.func.isRequired,
   wordObj: PropTypes.object.isRequired,
-  // teamThatSelectedCard: PropTypes.string,
 };
-
-// cardView.defaultProps = {
-//   teamThatSelectedCard: null,
-// };

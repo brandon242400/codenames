@@ -6,8 +6,11 @@ export default class GameLogic {
     this.wordList = null;
     this.gameID = gameID;
     this.teamsTurn = 'spyRed';
-    this.spymastersHint = {};
-    this.setSpymastersHint('', '', 0);
+    this.spymastersHint = {
+      hint: null,
+      team: null,
+      guesses: null,
+    };
     this.scores = {
       redScore: 0,
       blueScore: 0,
@@ -22,62 +25,35 @@ export default class GameLogic {
    * @param {Number} guessCount representing how many times the team gets to guess
    */
   setSpymastersHint(hint, team, guessCount) {
-    const spyHint = {
-      hint,
-      team,
-      guesses: guessCount,
-    };
-    this.spymastersHint = spyHint;
-    this.setWhosTurnItIs(spyHint);
+    this.spymastersHint.hint = hint;
+    this.spymastersHint.team = team;
+    this.spymastersHint.guesses = guessCount;
+    this.setWhosTurnItIs(this.spymastersHint);
   }
 
 
   /**
-   * Given the card: {word: "", team: ""} and team guessing, attributes a point to whichever
-   * team's card was chosen or attributes the "assassin" card to whichever team chose it.
+   * Given the card: {word: "", team: ""} and team guessing, attributes a point
+   * to whichever team's card was chosen.
    * @param {Object} card that was selected
    * @param {String} teamThatGuessed the card
    * @returns {Boolean} true if choice was valid and player can guess again or false if invalid
    */
   guessCard(card, teamThatGuessed) {
-    const { word } = card;
-    let index = -1;
-    for (let x = 0; x < this.wordList.length; x += 1) {
-      if (this.wordList[x].word === word) {
-        index = x;
-        break;
-      }
-    }
+    this.spymastersHint.guesses -= 1;
 
-    this.wordList[index].selected = true;
-    const listItem = JSON.parse(JSON.stringify(this.wordList[index]));
-    this.setSpymastersHint(
-      this.spymastersHint.hint,
-      this.spymastersHint.team,
-      this.spymastersHint.guesses - 1,
-    );
-
-    // Checking which team's card got guessed and returning true if the player can guess again.
-    if (listItem.team === 'blue') {
+    // Checking which team's card got guessed and updating score
+    if (card.team === 'blue') {
       this.scores.blueScore += 1;
-      if (this.spymastersHint.guesses < 1) {
+      if (this.spymastersHint.guesses < 1 || teamThatGuessed === 'red') {
         this.setSpymastersHint('', '', 0);
-        return false;
       }
-      if (teamThatGuessed === 'blue') {
-        return true;
-      }
-    } else if (listItem.team === 'red') {
+    } else if (card.team === 'red') {
       this.scores.redScore += 1;
-      if (this.spymastersHint.guesses < 1) {
+      if (this.spymastersHint.guesses < 1 || teamThatGuessed === 'blue') {
         this.setSpymastersHint('', '', 0);
-        return false;
       }
-      if (teamThatGuessed === 'red') return true;
     }
-
-    this.setSpymastersHint('', '', 0);
-    return false;
   }
 
 
@@ -107,8 +83,10 @@ export default class GameLogic {
   }
 
 
-  /** Sets all GameLogic data to match another game session's state
-   *  @param {*} data Game info of the session being joined */
+  /**
+   * Sets all GameLogic data to match another game session's state
+   * @param {*} data Game info of the session being joined
+   */
   setAllGameSessionData(data) {
     const {
       wordList,
@@ -116,9 +94,40 @@ export default class GameLogic {
       spymastersHint,
       scores,
     } = data;
-    this.wordList = wordList;
+    if (this.wordList) {
+      this.updateWordList(data);
+    } else {
+      this.wordList = wordList;
+    }
+    if (spymastersHint) {
+      this.spymastersHint.hint = spymastersHint.hint;
+      this.spymastersHint.team = spymastersHint.team;
+      this.spymastersHint.guesses = spymastersHint.guesses;
+    }
     this.teamsTurn = teamsTurn;
-    this.spymastersHint = spymastersHint || { hint: '', team: '', guesses: 0 };
     this.scores = scores;
+  }
+
+
+  /**
+   * Updates this.wordList without reassigning it so it holds the same object reference.
+   * @param {*} data
+   */
+  updateWordList(data) {
+    if (data.changes) {
+      if (!data.changes.card) {
+        return;
+      }
+    } else { return; }
+
+    const { changes } = data;
+    const { card } = changes;
+    for (let x = 0; x < this.wordList.length; x += 1) {
+      if (card.word === this.wordList[x].word) {
+        this.wordList[x].selected = card.selected;
+        this.wordList[x].teamThatGuessed = card.teamThatGuessed;
+        break;
+      }
+    }
   }
 }

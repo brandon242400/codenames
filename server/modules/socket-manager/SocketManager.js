@@ -19,36 +19,44 @@ class SocketManager {
     // Send Card listener
     this.setSendCardsListener();
 
-    // Verifies the entered gameID is valid. 
-    this.socket.on('validateGameID', (gameID, callback) => {
-      callback(this.isValidGameID(gameID));
-    });
+    this.setSendChangeInGameStateListener();
 
-    // Called when a player makes a move in game.
-    this.setCardSelectedListener();
-
-    // Called when a player selects the assassin card and ends the game.
-    this.setAssassinCardSelectedListener();
-
-    this.setSendAllSessionDataListener();
+    this.setSendGameState();
   }
 
 
-  /** Updates the score and emits it to other players */
-  checkGameScore(data) {
-    const { gameID, playerID, scores } = data;
-    const game = socketDict[gameID].game;
-    if (
-      game.scores.redScore === scores.redScore
-      && game.scores.blueScore === scores.blueScore
-    ) { return; }
+  setSendChangeInGameStateListener() {
+    this.socket.on('changeInGameState', (data) => {
+      const { gameID } = data;
+      const game = socketDict[gameID].game;
+      data = game.getChangesInData(data);
+      game.updateData(data);
+      this.emitChangeInGameState(data);
+    });
+  }
+  
 
-    game.scores = scores
+  emitChangeInGameState(data) {
+    const { gameID, playerID } = data;
     const sockets = socketDict[gameID].connectedSockets;
+    data.gameID = null;
+    data.playerID = null;
     for (let ID of Object.keys(sockets)) {
-      sockets[ID].emit('scoreChange', scores);
+      sockets[ID].emit('changeInGameStateBroadcast', data);
+      if (ID !== playerID) {
+        sockets[ID].emit(`${data.changes.card.word}CardChanged`, data.changes.card);
+      }
     }
   }
+
+
+  setSendGameState() {
+    this.socket.on('getGameState', (data, callback) => {
+      const { gameID } = data;
+      callback(socketDict[gameID].game.getData());
+    });
+  }
+
 
   /** Creates a game session or joins one depending on if one exists or not. */
   setSendGameIDListener() {
@@ -69,40 +77,6 @@ class SocketManager {
   }
 
 
-  /** Called whenever a player picks a card in game. 
-   *  Updates server version of wordList and emits the move to the other clients in game. */
-  setCardSelectedListener() {
-    this.socket.on('cardSelected', (data) => {
-      const { gameID, card, teamsTurn, spymastersHint, playerID } = data;
-      const game = socketDict[gameID].game;
-      const sockets = socketDict[gameID].connectedSockets;
-
-      game.replaceCard(card);
-      game.teamsTurn = teamsTurn;
-      game.spymastersHint = spymastersHint;
-
-      this.checkGameScore(data);
-
-      for (let ID of Object.keys(sockets)) {
-        if (ID !== playerID) {
-          sockets[ID].emit('cardSelectedBroadcast', { card, teamsTurn, spymastersHint });
-        }
-      }
-    });
-  }
-
-
-
-  setAssassinCardSelectedListener() {
-    this.socket.on('assassinCardSelected', (data) => {
-      const { gameID, card } = data;
-      const socketList = socketDict[gameID].connectedSockets;
-      for (let sock of socketList) {
-        sock.emit('assassinCardSelectedBroadcast', card);
-      }
-    });
-  }
-
   /** Sets the listener that sends the cards/wordList to the client to render. */
   setSendCardsListener() {
     this.socket.on('sendCards', (data, callback) => {
@@ -114,24 +88,6 @@ class SocketManager {
     });
   }
 
-  /** Listener to send all game info to a player joining a game after it has already started */
-  setSendAllSessionDataListener() {
-    this.socket.on('getAllSessionData', (data, callback) => {
-      console.log()
-      const { gameID } = data;
-      if (!this.isValidGameID(gameID)) {
-        callback(null);
-      } else {
-        const game = socketDict[gameID].game;
-        callback({
-          wordList: game.wordList,
-          teamsTurn: game.teamsTurn,
-          spymastersHint: game.spymastersHint,
-          scores: game.scores,
-        });
-      }
-    });
-  }
 
   isValidGameID(gameID) {
     return Object.prototype.hasOwnProperty.call(socketDict, gameID);

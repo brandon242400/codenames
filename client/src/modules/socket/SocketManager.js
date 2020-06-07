@@ -20,101 +20,38 @@ export default class SocketManager {
   }
 
 
-  /** Gets cards/wordList from server and returns through a callback function. */
-  getCards() {
+  getServerGameState() {
     return new Promise((resolve, reject) => {
       if (!this.socket) {
         reject(new Error('Missing socket connection'));
       }
-      this.socket.emit('sendCards', this.data, (cards) => {
-        resolve(cards);
+      this.socket.emit('getGameState', this.data, (data) => {
+        resolve(data);
       });
     });
   }
 
 
-  sendChangeInGameState(currentGame) {
+  sendChangeInGameState(currentGame, card = null) {
     const data = this.getDataCopy({
       wordList: currentGame.wordList,
       teamsTurn: currentGame.teamsTurn,
       spymastersHint: currentGame.spymastersHint,
       scores: currentGame.scores,
     });
+    if (card) {
+      data.changes = { card };
+    } else {
+      // eslint-disable-next-line no-console
+      console.log('No card change being sent to server.');
+    }
     this.socket.emit('changeInGameState', data);
   }
 
 
-  changeInGameStateListener() {
-    return new Promise((resolve, reject) => {
-      if (!this.socket) {
-        reject(new Error('Missing socket connection'));
-      }
-      this.socket.on('changeInGameStateBroadcast', (data) => {
-        resolve(data);
-      });
-    });
-  }
-
-
-  /** Listens to and returns changes to the game score from the server */
-  scoreChangeListener() {
-    return new Promise((resolve, reject) => {
-      if (!this.socket) {
-        reject(new Error('Missing socket connection'));
-      }
-      this.socket.on('scoreChange', (data) => {
-        resolve(data);
-      });
-    });
-  }
-
-
-  /** Sends the users choice to the server to broadcast it to other players */
-  sendSelectedCard(card, currentGame) {
-    const data = this.getDataCopy({
-      card,
-      teamsTurn: currentGame.teamsTurn,
-      scores: currentGame.scores,
-      spymastersHint: currentGame.spymastersHint,
-    });
-
-    if (card.team === 'assassin') {
-      this.socket.emit('assassinCardSelected', data);
-    } else {
-      this.socket.emit('cardSelected', data);
-      console.log('emitting event');
-    }
-  }
-
-
-  /** Listens for other players moves & returns the card they selected */
-  cardSelectedListener() {
-    return new Promise((resolve, reject) => {
-      if (!this.socket) {
-        reject(new Error('Missing socket connection'));
-      }
-      console.log('cardSelectedListener set');
-      this.socket.on('cardSelectedBroadcast', (card) => {
-        console.log('cardSelectedListener()');
-        resolve(card);
-      });
-    });
-  }
-
-
-  /** Returns a promise for the current game session data the user is trying to join */
-  getGameSessionData() {
-    return new Promise((resolve, reject) => {
-      if (!this.socket) {
-        reject(new Error('Missing socket connection'));
-      }
-      this.socket.emit('getAllSessionData', this.data, (data) => {
-        if (data) {
-          resolve(data);
-        } else {
-          reject(new Error('Could not find game session. Invalid game ID'));
-        }
-      });
+  onChangeInGameState(callback) {
+    this.socket.on('changeInGameStateBroadcast', (data) => {
+      callback(data);
     });
   }
 

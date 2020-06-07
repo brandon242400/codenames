@@ -18,25 +18,16 @@ export default class CardContainer extends React.Component {
     this.playersTeam = playersTeam;
     this.socketManager = socketManager;
     this.currentGame = currentGame;
-    // this.createCards = this.createCards.bind(this);
     this.setAssassinCard = this.setAssassinCard.bind(this);
-    this.cardSelectedListener = this.cardSelectedListener.bind(this);
+    this.getGameState = this.getGameState.bind(this);
+    this.changeInGameState = this.changeInGameState.bind(this);
   }
 
 
-  /** Repeatedly checks for wordList to be set if it isn't already */
   componentDidMount() {
-    if (!this.currentGame.wordList) {
-      const intervalID = setInterval(() => {
-        if (this.currentGame.wordList) {
-          clearInterval(intervalID);
-          this.setState({ wordList: this.currentGame.wordList });
-        }
-      }, 250);
-    } else {
-      this.setState({ wordList: this.currentGame.wordList });
-    }
-    this.cardSelectedListener();
+    // this.changeInGameState();
+    this.socketManager.onChangeInGameState(this.changeInGameState);
+    this.getGameState();
   }
 
 
@@ -47,21 +38,13 @@ export default class CardContainer extends React.Component {
   }
 
 
-  cardSelectedListener() {
-    this.socketManager.cardSelectedListener()
+  getGameState() {
+    this.socketManager.getServerGameState()
       .then((res) => {
+        // eslint-disable-next-line
         console.log(res);
-        const { card } = res;
-        const list = this.currentGame.wordList;
-        console.log(card);
-
-        for (let x = 0; x < list.length; x += 1) {
-          if (list[x].word === card.word) {
-            list[x] = card;
-            this.setState({ wordList: list });
-            break;
-          }
-        }
+        this.currentGame.setAllGameSessionData(res);
+        this.setState({ wordList: this.currentGame.wordList });
       })
       .catch((error) => {
         // eslint-disable-next-line no-console
@@ -70,19 +53,12 @@ export default class CardContainer extends React.Component {
   }
 
 
-  /** Generates and returns a list of cards from the wordList array given from the server. */
-  // createCards() {
-  //   return this.currentGame.wordList.map((word) => (
-  //     <Card
-  //       key={word.word}
-  //       currentGame={this.currentGame}
-  //       playersTeam={this.playersTeam}
-  //       setAssassinCard={this.setAssassinCard}
-  //       socketManager={this.socketManager}
-  //       wordObj={word}
-  //     />
-  //   ));
-  // }
+  changeInGameState(data) {
+    // eslint-disable-next-line no-console
+    console.log(data);
+    this.currentGame.setAllGameSessionData(data);
+    this.setState({ wordList: this.currentGame.wordList });
+  }
 
 
   render() {
@@ -90,7 +66,10 @@ export default class CardContainer extends React.Component {
 
     return (
       <div>
-        <ScoreDisplay socketManager={this.socketManager} />
+        {/* <ScoreDisplay
+          scores={this.currentGame.scores}
+          socketManager={this.socketManager}
+        /> */}
         {(this.playersTeam === 'spyRed' || this.playersTeam === 'spyBlue')
           ? <SpymasterEntry currentGame={this.currentGame} playersTeam={this.playersTeam} />
           : null}
