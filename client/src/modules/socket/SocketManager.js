@@ -39,12 +39,7 @@ export default class SocketManager {
       spymastersHint: currentGame.spymastersHint,
       scores: currentGame.scores,
     });
-    if (card) {
-      data.changes = { card };
-    } else {
-      // eslint-disable-next-line no-console
-      console.log('No card change being sent to server.');
-    }
+    data.changes = { card };
     this.socket.emit('changeInGameState', data);
   }
 

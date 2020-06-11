@@ -9,7 +9,7 @@ export default class GameLogic {
     this.spymastersHint = {
       hint: null,
       team: null,
-      guesses: null,
+      guesses: 0,
     };
     this.scores = {
       redScore: 0,

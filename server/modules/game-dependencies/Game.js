@@ -23,6 +23,7 @@ class Game {
     this.spymastersHint = spymastersHint;
     this.scores = scores;
 
+    if (!changes.card) { return; }
     for (let x = 0; x < wordList.length; x += 1) {
       if (wordList[x].word === changes.card.word) {
         wordList[x].selected = changes.card.selected;

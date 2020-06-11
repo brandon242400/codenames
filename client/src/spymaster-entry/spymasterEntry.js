@@ -8,28 +8,47 @@ export default class SpymasterEntry extends React.Component {
     this.state = {
       textInput: '',
       numInput: '',
-      currentGame: props.currentGame,
     };
-    this.playersTeam = props.playersTeam;
     this.setHint = this.setHint.bind(this);
+    this.canEnterHint = this.canEnterHint.bind(this);
   }
 
+
+  /** Sends this spymaster's hint to the server. */
   setHint() {
-    const { textInput, numInput, currentGame } = this.state;
-    if (currentGame.teamsTurn === this.playersTeam) {
-      currentGame.setSpymastersHint(textInput, this.playersTeam, parseInt(numInput, 10));
-      // socket.emit() <== Send the hint to the server
-      this.setState({
-        textInput: '',
-        numInput: '',
-      });
-    } else {
+    const { textInput, numInput } = this.state;
+    const { socketManager, playersTeam, currentGame } = this.props;
+
+    if (!this.canEnterHint()) { return; }
+    currentGame.setSpymastersHint(textInput.trim(), playersTeam, parseInt(numInput, 10));
+    socketManager.sendChangeInGameState(currentGame);
+    this.setState({
+      textInput: '',
+      numInput: '',
+    });
+  }
+
+
+  /** Returns true if this spymaster can submit their hint. */
+  canEnterHint() {
+    const { textInput } = this.state;
+    const { playersTeam, currentGame } = this.props;
+
+    if (currentGame.teamsTurn !== playersTeam) {
       this.setState({
         textInput: 'It\'s not your turn',
         numInput: '',
       });
-    }
+      return false;
+    } if (textInput.trim().split(' ').length !== 1) {
+      this.setState({
+        textInput: 'Hint must be 1 word',
+        numInput: '',
+      });
+      return false;
+    } return true;
   }
+
 
   render() {
     const { textInput, numInput } = this.state;
@@ -64,6 +83,7 @@ export default class SpymasterEntry extends React.Component {
 SpymasterEntry.propTypes = {
   currentGame: PropTypes.object.isRequired,
   playersTeam: PropTypes.string.isRequired,
+  socketManager: PropTypes.object.isRequired,
 };
 
 const Container = styled.div`

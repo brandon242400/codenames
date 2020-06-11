@@ -34,7 +34,7 @@ class SocketManager {
       this.emitChangeInGameState(data);
     });
   }
-  
+
 
   emitChangeInGameState(data) {
     const { gameID, playerID } = data;
@@ -43,9 +43,6 @@ class SocketManager {
     data.playerID = null;
     for (let ID of Object.keys(sockets)) {
       sockets[ID].emit('changeInGameStateBroadcast', data);
-      if (ID !== playerID) {
-        sockets[ID].emit(`${data.changes.card.word}CardChanged`, data.changes.card);
-      }
       if (data.changes.scores) {
         sockets[ID].emit('scoreChangeBroadcast', data.changes.scores);
       }

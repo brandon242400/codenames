@@ -6,7 +6,6 @@ import AssassinCard from '../end-game/assassinCardSelected';
 import SpymasterEntry from '../spymaster-entry/spymasterEntry';
 import StyledCardContainer from './cardContainerStyles';
 
-
 export default class CardContainer extends React.Component {
   constructor(props) {
     super(props);
@@ -20,17 +19,18 @@ export default class CardContainer extends React.Component {
     this.socketManager = socketManager;
     this.currentGame = currentGame;
     this.setAssassinCard = this.setAssassinCard.bind(this);
-    this.getGameState = this.getGameState.bind(this);
+    // this.getGameState = this.getGameState.bind(this);
     this.changeInGameState = this.changeInGameState.bind(this);
   }
 
-
   componentDidMount() {
-    // this.changeInGameState();
+    this.setState({
+      wordList: this.currentGame.wordList,
+      scores: this.currentGame.scores,
+    });
     this.socketManager.onChangeInGameState(this.changeInGameState);
-    this.getGameState();
+    // this.getGameState();
   }
-
 
   /** Sets the 'selectedAssassinCard' value when someone selects the card.
    *  @param {Boolean} val */
@@ -38,43 +38,42 @@ export default class CardContainer extends React.Component {
     this.setState({ selectedAssassinCard: val });
   }
 
+  /** Gets the current game state from the server when the page is initially rendered. */
+  // getGameState() {
+  //   this.socketManager.getServerGameState()
+  //     .then((res) => {
+  //       this.currentGame.setAllGameSessionData(res);
+  //       this.setState({
+  //         wordList: res.wordList,
+  //         scores: res.scores,
+  //       });
+  //     })
+  //     .catch((error) => {
+  //       // eslint-disable-next-line no-console
+  //       console.log(error.message);
+  //     });
+  // }
 
-  getGameState() {
-    this.socketManager.getServerGameState()
-      .then((res) => {
-        this.currentGame.setAllGameSessionData(res);
-        this.setState({
-          wordList: res.wordList,
-          scores: res.scores,
-        });
-      })
-      .catch((error) => {
-        // eslint-disable-next-line no-console
-        console.log(error.message);
-      });
-  }
-
-
+  /** Updates the currentGame and state info when there's a change on the server.
+   *  @param {Object} data The server's version of the game */
   changeInGameState(data) {
     this.currentGame.setAllGameSessionData(data);
     this.setState({ wordList: this.currentGame.wordList });
   }
 
-
   render() {
     const { selectedAssassinCard, wordList, scores } = this.state;
-
     return (
       <div>
-        {scores
-          ? (
-            <ScoreDisplay
-              scores={scores}
-              socketManager={this.socketManager}
-            />
-          ) : null}
+        {scores ? <ScoreDisplay scores={scores} socketManager={this.socketManager} /> : null}
         {(this.playersTeam === 'spyRed' || this.playersTeam === 'spyBlue')
-          ? <SpymasterEntry currentGame={this.currentGame} playersTeam={this.playersTeam} />
+          ? (
+            <SpymasterEntry
+              currentGame={this.currentGame}
+              socketManager={this.socketManager}
+              playersTeam={this.playersTeam}
+            />
+          )
           : null}
         <StyledCardContainer>
           {wordList ? wordList.map((word) => (
@@ -88,13 +87,7 @@ export default class CardContainer extends React.Component {
             />
           )) : null}
           {selectedAssassinCard
-            ? (
-              <AssassinCard
-                losingTeam={this.playersTeam}
-                startNewGame={() => null} /* <-- Need to add a way for a player to
-                start a new game within the same gameID /uuid instance. */
-              />
-            )
+            ? <AssassinCard losingTeam={this.playersTeam} />
             : null}
         </StyledCardContainer>
       </div>

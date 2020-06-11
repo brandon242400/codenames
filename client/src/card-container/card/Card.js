@@ -10,63 +10,44 @@ export default class Card extends React.Component {
     this.state = {
       card: wordObj,
     };
+    this.canPlayerGuess = this.canPlayerGuess.bind(this);
     this.handleClick = this.handleClick.bind(this);
-    this.cardChangeListener = this.cardChangeListener.bind(this);
   }
 
-
-  componentDidMount() {
-    this.cardChangeListener();
+  /** Returns true if the player can select this card. */
+  canPlayerGuess() {
+    const { card: wordObj } = this.state;
+    const { playersTeam, currentGame } = this.props;
+    if (wordObj.selected || wordObj.teamThatGuessed) { return false; }
+    if (playersTeam === 'spyRed' || playersTeam === 'spyBlue') { return false; }
+    if (currentGame.teamsTurn !== playersTeam) { return false; }
+    return true;
   }
 
-
-  cardChangeListener() {
-    const { wordObj, socketManager } = this.props;
-    const socket = socketManager.getSocket();
-    socket.on(`${wordObj.word}CardChanged`, (card) => {
-      // eslint-disable-next-line
-      console.log(card);
-      const { card: thisCard } = this.state;
-      if (thisCard.selected !== card.selected
-        || thisCard.teamThatGuessed !== card.teamThatGuessed) {
-        this.setState({ card });
-      }
-    });
-  }
-
-
-  /**
-   * Checks if current user is allowed to select the given card.
-   * If they are, marks the card as selected and attributes a point to the corresponding team.
-   * @param {Event} e
-   */
+  /** Checks if current user is allowed to select the given card.
+   *  If they are, marks the card as selected and attributes a point to the corresponding team.
+   *  @param {Event} e */
   handleClick(e) {
     e.preventDefault();
+    const { socketManager } = this.props;
     const { currentGame, playersTeam } = this.props;
     const { card } = this.state;
     const wordObj = { ...card };
 
-    // Making sure it's the current player's turn
-    if (wordObj.selected) { return; }
-    if (wordObj.teamThatGuessed) { return; }
-    // if (playersTeam === 'spyRed') { return; }
-    // if (playersTeam === 'spyBlue') { return; }
-    // if (currentGame.teamsTurn !== playersTeam) { return; }
-
-    // Setting wordObj and currentGame info before sending to server
-    const { socketManager } = this.props;
+    if (!this.canPlayerGuess()) { return; }
     wordObj.selected = true;
     wordObj.teamThatGuessed = playersTeam;
     currentGame.guessCard(wordObj, playersTeam);
     socketManager.sendChangeInGameState(currentGame, wordObj);
     // if (wordObj.team === 'assassin') { setAssassinCard(true); }
+
     this.setState({ card: wordObj });
   }
+
 
   render() {
     const { playersTeam } = this.props;
     const { card } = this.state;
-
     return (
       <CardView
         handleClick={this.handleClick}
