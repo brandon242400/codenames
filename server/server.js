@@ -1,38 +1,31 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const socketManager = require('./socketManager');
+const socketManager = require('./modules/socket-manager/SocketManager').SocketManager;
 
 
 const PORT = process.env.NODE_ENV || 5000;
 const app = express();
-const server = require('http').createServer(app);
+const server = require('http').Server(app);
 const io = require('socket.io')(server);
+let sn;
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// socketDict format : {
-//  uuid/gameID: {
-//    game: new gameObj.Game(),
-//    connectedSockets: [socket1, socket2, ...],
-//  }
-// }
-// Holds data for all ongoing games as well as connected sockets for each game
-let socketDict = {};
+// Object that stores all of the game sessions
+const socketManagerList = [];
 
 // Socket connection
 io.on('connection', (socket) => {
   console.log('Client connected to server socket.');
-  socketManager.establishSocketConnection(socket, socketDict);
+  sn = new socketManager(socket);
+  socketManagerList.push(sn);
 });
 
 // POST method to validate gameID before establishing socket connection
 app.post('/api/validate-gameid', (req, res) => {
-  const gameID = req.body.gameID;
-  const gameIDlist = Object.keys(socketDict);
-  res.json({ validID: gameIDlist.includes(gameID) });
+  res.json({ validID: sn.isValidGameID(req.body.gameID) });
 });
-
 
 server.listen(PORT);

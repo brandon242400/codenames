@@ -1,104 +1,95 @@
 import React from 'react';
 import './App.css';
-import io from 'socket.io-client';
 import PropTypes from 'prop-types';
-import AppContext from './context/AppContext';
-import CardContainer from './comp/cards/CardContainer';
-import RulesLeft from './comp/rules/RulesLeft';
-import RulesRight from './comp/rules/RulesRight';
-import GameLogic from './game-logic/GameLogic';
+import styled from 'styled-components';
+import CardContainer from './card-container/CardContainer';
+import GameLogic from './modules/game-logic/GameLogic';
+import SpymasterHintDisplay from './spymaster-display/SpymasterHintDisplay';
+import ScoreLimitReached from './end-game/scoreLimitReached';
+import RulesPopUp from './rules/rulesPopUp';
+import ScoreDisplay from './card-container/score-display/scoreDisplay';
+import GetGameID from './buttons/GetGameID';
+import colors from './constants/colors';
 
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      playersTeam: '',
-      teamDisplay: '',
-    };
-    const { gameID } = this.props;
+    this.state = { dataResolved: false };
+    const { gameID } = props;
     this.currentGame = new GameLogic(gameID);
-    this.gameInstanceTimestamp = new Date().getTime();
-    this.setTeam = this.setTeam.bind(this);
-    this.establishSocketConnection = this.establishSocketConnection.bind(this);
-    this.socket = null;
+    this.getGameState = this.getGameState.bind(this);
   }
-
 
   componentDidMount() {
-    const { playersTeam } = this.props;
-    this.setTeam(playersTeam);
-    this.establishSocketConnection();
+    this.getGameState();
   }
 
-
-  /**
-   * Sets the team that the player will be placed on.
-   * @param {String} team name
-   */
-  setTeam(playersTeam) {
-    let teamDisplay = playersTeam;
-    switch (teamDisplay) {
-      case 'red':
-        teamDisplay = 'Red';
-        break;
-      case 'blue':
-        teamDisplay = 'Blue';
-        break;
-      case 'spyRed':
-        teamDisplay = 'Red Team\'s Spy';
-        break;
-      default:
-        teamDisplay = 'Blue Team\'s Spy';
-        break;
-    }
-    this.setState(() => ({
-      teamDisplay,
-      playersTeam,
-    }));
+  /** Gets the current/initial game state from the server. */
+  getGameState() {
+    const { socketManager } = this.props;
+    socketManager.getServerGameState()
+      .then((res) => {
+        this.currentGame.setAllGameSessionData(res);
+        this.setState({ dataResolved: true });
+      })
+      .catch((error) => {
+        // eslint-disable-next-line no-console
+        console.log(error.message);
+      });
   }
-
-
-  establishSocketConnection() {
-    this.socket = io();
-    // Retrieves cards from server to use in game
-    this.socket.on('cards', (cards) => {
-      this.currentGame.wordList = cards;
-    });
-    // Sends game ID to server
-    // eslint-disable-next-line
-    console.log(this.currentGame.gameID);
-    this.socket.emit('sendGameID', this.currentGame.gameID);
-  }
-
 
   render() {
-    const { playersTeam, teamDisplay } = this.state;
-    const contextData = {
-      playersTeam,
-      currentGame: this.currentGame,
-      socket: this.socket,
-    };
+    const { dataResolved } = this.state;
+    const { playersTeam, socketManager } = this.props;
 
-    return (
-      <AppContext.Provider value={contextData}>
-        <div className="App">
-          <RulesLeft />
-          <div>
-            <h1>Codenames</h1>
-            <h4 style={{ textDecoration: 'underline' }}>
-              {`Team: ${teamDisplay}`}
-            </h4>
-            <CardContainer playersTeam={playersTeam} />
+    if (dataResolved) {
+      return (
+        <>
+          <div className="App">
+            <MainTitle>CODENAMES</MainTitle>
+            <div className="main-content">
+              <div className="left-panel">
+                <ScoreDisplay
+                  scores={this.currentGame.scores}
+                  socketManager={socketManager}
+                  playersTeam={playersTeam}
+                />
+                <SpymasterHintDisplay
+                  socketManager={socketManager}
+                  currentGame={this.currentGame}
+                />
+              </div>
+              <div className="center-panel">
+                <ScoreLimitReached socketManager={socketManager} playersTeam={playersTeam} />
+                <CardContainer
+                  currentGame={this.currentGame}
+                  socketManager={socketManager}
+                  playersTeam={playersTeam}
+                />
+              </div>
+              <div className="right-panel">
+                <RulesPopUp />
+                <GetGameID gameID={this.currentGame.gameID} />
+              </div>
+            </div>
           </div>
-          <RulesRight />
-        </div>
-      </AppContext.Provider>
-    );
+        </>
+      );
+    } return <></>;
   }
 }
 
 App.propTypes = {
   gameID: PropTypes.string.isRequired,
   playersTeam: PropTypes.string.isRequired,
+  socketManager: PropTypes.object.isRequired,
 };
+
+const MainTitle = styled.h1`
+  font-family: 'Roboto Mono', monospace;
+  font-size: 200%;
+  text-decoration: underline;
+  color: ${colors.primary};
+  font-weight: 600;
+`;
