@@ -76,6 +76,8 @@ const StyledContainer = styled.div`
   border: 1px solid black;
   border-radius: 5px;
   padding: 5px;
+  width: fit-content;
+  margin: auto 0 auto auto;
 
   .team-turn {
     text-decoration: underline;

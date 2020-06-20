@@ -1,10 +1,41 @@
-html {
-	background-color: #777;
+body {
+	background-color: #e0fbfc;
+	font-family: 'Roboto Mono', monospace;
 	text-align: center;
 }
 
 .App {
 	display: flex;
+	flex-direction: column;
+	margin: 10vh auto auto auto;
+}
+
+.main-content {
+	display: flex;
+	flex-direction: row;
+}
+
+.left-panel {
+	border-right: 1px solid #264653;
+	padding-right: 1vw;
+	min-width: 20vw;
+	margin: 15vh auto auto auto;
+	width: fit-content;
+	height: fit-content;
+	text-align: right;
+}
+
+.center-panel {
+	/* margin: auto; */
+}
+
+.right-panel {
+	border-left: 1px solid #264653;
+	padding-left: 1vw;
+	text-align: left;
+	margin: 15vh auto auto auto;
+	min-width: 20vw;
+	height: fit-content;
 }
 
 .card-container {

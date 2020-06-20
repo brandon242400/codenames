@@ -39,16 +39,14 @@ class SocketManager {
   emitChangeInGameState(data) {
     const { gameID, playerID } = data;
     const sockets = socketDict[gameID].connectedSockets;
-    data.gameID = null;
     data.playerID = null;
+    if (data.changes.scores) {
+      this.checkScoreValues(data, gameID);
+    }
     for (let ID of Object.keys(sockets)) {
       sockets[ID].emit('changeInGameStateBroadcast', data);
-      if (data.changes.scores) {
-        sockets[ID].emit('scoreChangeBroadcast', data.changes.scores);
-      }
     }
   }
-
 
   setSendGameState() {
     this.socket.on('getGameState', (data, callback) => {
@@ -56,7 +54,6 @@ class SocketManager {
       callback(socketDict[gameID].game.getData());
     });
   }
-
 
   /** Creates a game session or joins one depending on if one exists or not. */
   setSendGameIDListener() {
@@ -76,7 +73,6 @@ class SocketManager {
     });
   }
 
-
   /** Sets the listener that sends the cards/wordList to the client to render. */
   setSendCardsListener() {
     this.socket.on('sendCards', (data, callback) => {
@@ -88,6 +84,20 @@ class SocketManager {
     });
   }
 
+  checkScoreValues(data, gameID) {
+    const { changes } = data;
+    const sockets = socketDict[gameID].connectedSockets;
+    data.gameID = null;
+    if (changes.scores.redScore >= 8 || changes.scores.blueScore >= 8) {
+      Object.keys(sockets).forEach((ID) => {
+        sockets[ID].emit('scoreLimitReached', data);
+      });
+    } else {
+      Object.keys(sockets).forEach((ID) => {
+        sockets[ID].emit('scoreChangeBroadcast', data.changes.scores);
+      });
+    }
+  }
 
   isValidGameID(gameID) {
     return Object.prototype.hasOwnProperty.call(socketDict, gameID);

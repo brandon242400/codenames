@@ -18,12 +18,10 @@ export default class GameLogic {
   }
 
 
-  /**
-   * Sets the spymaster's hint.
-   * @param {String} hint given from the spymaster
-   * @param {String} team of the spymaster giving the hint
-   * @param {Number} guessCount representing how many times the team gets to guess
-   */
+  /** Sets the spymaster's hint.
+   *  @param {String} hint given from the spymaster
+   *  @param {String} team of the spymaster giving the hint
+   *  @param {Number} guessCount representing how many times the team gets to guess */
   setSpymastersHint(hint, team, guessCount) {
     this.spymastersHint.hint = hint;
     this.spymastersHint.team = team;
@@ -34,15 +32,15 @@ export default class GameLogic {
 
   /**
    * Given the card: {word: "", team: ""} and team guessing, attributes a point
-   * to whichever team's card was chosen.
-   * @param {Object} card that was selected
-   * @param {String} teamThatGuessed the card
+   * to whichever team's card was chosen and updates the spymaster's hint guess count.
+   * @param {Object} card The card that was selected
+   * @param {String} teamThatGuessed The team that guessed the card
    * @returns {Boolean} true if choice was valid and player can guess again or false if invalid
    */
   guessCard(card, teamThatGuessed) {
     this.spymastersHint.guesses -= 1;
 
-    // Checking which team's card got guessed and updating score
+    // Checking which team's card got guessed to update scores & spymaster's hint
     if (card.team === 'blue') {
       this.scores.blueScore += 1;
       if (this.spymastersHint.guesses < 1 || teamThatGuessed === 'red') {
@@ -53,6 +51,8 @@ export default class GameLogic {
       if (this.spymastersHint.guesses < 1 || teamThatGuessed === 'blue') {
         this.setSpymastersHint('', '', 0);
       }
+    } else {
+      this.setSpymastersHint('', '', 0);
     }
   }
 
@@ -83,10 +83,8 @@ export default class GameLogic {
   }
 
 
-  /**
-   * Sets all GameLogic data to match another game session's state
-   * @param {*} data Game info of the session being joined
-   */
+  /** Sets all GameLogic data to match another game session's state
+   *  @param {*} data Game info of the session being joined */
   setAllGameSessionData(data) {
     const {
       wordList,
@@ -109,10 +107,8 @@ export default class GameLogic {
   }
 
 
-  /**
-   * Updates this.wordList without reassigning it so it holds the same object reference.
-   * @param {*} data
-   */
+  /** Updates this.wordList without reassigning it so it holds the same object reference.
+   *  @param {*} data */
   updateWordList(data) {
     if (data.changes) {
       if (!data.changes.card) {

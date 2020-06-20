@@ -51,6 +51,15 @@ export default class SocketManager {
   }
 
 
+  /** Listener that's called when a team reaches the score limit and wins the game.
+   *  @param {func} callback Callback to send the end of game scores to */
+  onScoreLimitReached(callback) {
+    this.socket.on('scoreLimitReached', (data) => {
+      callback(data.changes.scores);
+    });
+  }
+
+
   /** Copys this.data and adds properties from the passed argument to it then returns it
    *  @param {object} data The object being added to this.data */
   getDataCopy(data) {

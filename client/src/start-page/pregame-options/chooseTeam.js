@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
+import StyledButton from '../../buttons/styles/styledButton';
+import colors from '../../constants/colors';
 
 export default function chooseTeam(props) {
   const { setPlayersTeam } = props;
@@ -10,42 +11,43 @@ export default function chooseTeam(props) {
     <>
       <StyledTitle>Choose Your Team</StyledTitle>
       <Container>
-        <ButtonContainer style={{ marginRight: '10vw' }}>
-          <Button
+        {/* <ButtonContainer style={{ marginRight: '10vw' }}> */}
+        <ButtonContainer>
+          <StyledButton
             variant="contained"
             color="primary"
             onClick={() => setPlayersTeam('red', 'Red')}
             style={{ marginBottom: '3vh' }}
           >
             Red Team
-          </Button>
+          </StyledButton>
           <br />
-          <Button
+          <StyledButton
             variant="contained"
             color="primary"
             onClick={() => setPlayersTeam('spyRed', 'Red Team\'s Spy')}
           >
             Red Team&apos;s Spy
-          </Button>
+          </StyledButton>
         </ButtonContainer>
 
         <ButtonContainer>
-          <Button
+          <StyledButton
             variant="contained"
             color="primary"
             onClick={() => setPlayersTeam('blue', 'Blue')}
             style={{ marginBottom: '3vh' }}
           >
             Blue Team
-          </Button>
+          </StyledButton>
           <br />
-          <Button
+          <StyledButton
             variant="contained"
             color="primary"
             onClick={() => setPlayersTeam('spyBlue', 'Blue Team\'s Spy')}
           >
             Blue Team&apos;s Spy
-          </Button>
+          </StyledButton>
         </ButtonContainer>
       </Container>
     </>
@@ -66,10 +68,13 @@ const Container = styled.div`
 const ButtonContainer = styled.div`
   display: block;
   width: fit-content;
+  border: 1px solid black;
 `;
 
 const StyledTitle = styled.h2`
-  color: #333;
+  font-family: 'Roboto Mono', monospace;
+  font-weight: 600;
+  color: ${colors.primary};
   font-size: 175%;
   width: fit-content;
   margin: auto;
